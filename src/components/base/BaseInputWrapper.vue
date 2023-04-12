@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { defineEmits, defineProps, withDefaults } from 'vue';
 
 /* Composition */
 // import you composition api...
@@ -8,11 +9,20 @@
 
 /* Types */
 // declare components component...
+interface Props {
+  label?: string;
+}
+interface Emit {
+  (e: 'update:modelValue', value: string): void;
+}
 
 /* Props */
 // property default value...
+const props = withDefaults(defineProps<Props>(), {
+});
 
 /* Emits */
+const emit = defineEmits<Emit>();
 
 /* Data */
 // declare reactive variables...
@@ -31,11 +41,10 @@
 </script>
 
 <template>
-  <q-layout view="lhr lpr lfr">
-    <q-page-container class="auth-layout-content">
-      <router-view />
-    </q-page-container>
-  </q-layout>
+  <div class="base-input-wrapper">
+    <span v-if="label" class="base-input-wrapper__label" v-text="label" />
+    <slot />
+  </div>
 </template>
 
 <style scoped lang="scss">
@@ -44,8 +53,12 @@
 
 /* Selector */
 // style component...
-.auth-layout-content {
-  margin-top: 180px;
-  padding: 0 calc(50% - 304px);
+.base-input-wrapper {
+  &__label {
+    padding-left: 16px;
+    padding-bottom: 8px;
+    font-weight: 700;
+    font-size: 16px;
+  }
 }
 </style>

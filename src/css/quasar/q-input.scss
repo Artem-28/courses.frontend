@@ -1,0 +1,16 @@
+.q-field {
+  &__native {
+    font-size: 16px;
+  }
+  &__native::placeholder {
+    color: $text-body-secondary;
+  }
+}
+.q-field--outlined {
+  .q-field__control {
+    border-radius: 8px;
+  }
+  .q-field__control:hover:before {
+    border-color: $primary;
+  }
+}
