@@ -30,5 +30,5 @@ withDefaults(defineProps<EssentialLinkProps>(), {
   caption: '',
   link: '#',
   icon: ''
-})
+});
 </script>

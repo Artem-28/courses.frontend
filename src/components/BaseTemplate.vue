@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { defineEmits, defineProps, withDefaults } from 'vue'
+import { defineEmits, defineProps, withDefaults } from 'vue';
 
 /* Composition */
 // import you composition api...
@@ -20,10 +20,10 @@ interface Emit {
 // property default value...
 const props = withDefaults(defineProps<Props>(), {
   value: ''
-})
+});
 
 /* Emits */
-const emit = defineEmits<Emit>()
+const emit = defineEmits<Emit>();
 
 /* Data */
 // declare reactive variables...
