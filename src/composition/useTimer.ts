@@ -1,4 +1,5 @@
 import { ref, computed } from 'vue';
+import moment from 'moment';
 // eslint-disable-next-line no-undef
 import Timeout = NodeJS.Timeout
 import { TimerHook } from 'src/types/hook';
@@ -6,6 +7,10 @@ import { TimerHook } from 'src/types/hook';
 function useTimer(hook?: TimerHook) {
   const timer = ref<number>(0);
   let interval: Timeout | null = null;
+
+  const formatterTimer = computed(() => {
+    return moment(timer.value, 'X').format('mm:ss');
+  });
 
   const stopTimer = () => {
     if (interval) {
@@ -24,6 +29,7 @@ function useTimer(hook?: TimerHook) {
   };
 
   const startTimer = () => {
+    if (interval) return;
     interval = setInterval(() => {
       timer.value--;
       if (hook && hook.change) hook.change(timer.value);
@@ -32,11 +38,13 @@ function useTimer(hook?: TimerHook) {
   };
 
   const setTimer = (time: number) => {
+    stopTimer();
     timer.value = time;
   };
 
   return {
     timer,
+    formatterTimer,
     setTimer,
     stopTimer,
     startTimer,
