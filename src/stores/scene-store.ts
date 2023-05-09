@@ -1,5 +1,5 @@
 import { defineStore } from 'pinia';
-import { SceneState } from 'src/types/store/scene';
+import { SceneState } from 'src/types/store/type-scene';
 
 export const useSceneStore = defineStore('scene', {
   state: (): SceneState => ({

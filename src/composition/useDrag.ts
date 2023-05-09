@@ -1,16 +1,16 @@
 import { reactive, ref, watch } from 'vue';
-import { CallHookDrag } from 'src/types/hook';
-import { Position } from 'src/types/component-props';
-import { CompositionUseDrag } from 'src/types/composition';
+import { FCallHookDrag } from 'src/types/type-hook';
+import { FCompositionUseDrag } from 'src/types/type-composition';
+import { IPosition } from 'src/types/type-component-props';
 
-const useDrag: CompositionUseDrag = (refElement, position, hook) => {
-  const dragOffset = reactive<Position>({ ...position });
-  const shift = reactive<Position>({ x: 0, y: 0 });
+const useDrag: FCompositionUseDrag = (refElement, position, hook) => {
+  const dragOffset = reactive<IPosition>({ ...position });
+  const shift = reactive<IPosition>({ x: 0, y: 0 });
   const scene = ref<HTMLElement>(document.body);
   let elemRect: DOMRect | null = null;
   let sceneRect: DOMRect = scene.value.getBoundingClientRect();
 
-  const callHook: CallHookDrag = (type) => {
+  const callHook: FCallHookDrag = (type) => {
     if (hook && type in hook) {
       const data = {
         elem: refElement.value as HTMLElement,

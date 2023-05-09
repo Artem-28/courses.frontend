@@ -9,9 +9,9 @@ import { computed, defineEmits, defineProps, withDefaults, ref } from 'vue';
 
 /* Types */
 // declare components component...
-import { Position } from 'src/types/component-props';
+import { Position } from 'src/types/type-component-props';
 import useDrag from 'src/composition/useDrag';
-import { DragHook } from 'src/types/hook';
+import { DragHook } from 'src/types/type-hook';
 
 interface Props {
   position?: Position;

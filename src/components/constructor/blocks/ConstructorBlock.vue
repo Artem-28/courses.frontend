@@ -1,6 +1,5 @@
 <script setup lang="ts">
-import { defineProps, withDefaults, ref, computed, reactive } from 'vue';
-import BaseBlockModel from 'src/models/block/BaseBlock';
+import { defineProps, withDefaults, ref, computed, reactive, onMounted } from 'vue';
 
 /* Composition */
 // import you composition api...
@@ -11,20 +10,19 @@ import useDrag from 'src/composition/useDrag';
 
 /* Types */
 // declare components component...
-import { DragHook, DragHookAttr } from 'src/types/hook';
-import { Position } from 'src/types/component-props';
-import { ConfinesScene } from 'src/types/store/scene';
+import BaseBlockModel from 'src/models/block/BaseDragBlock';
+import { IConfines, IPosition } from 'src/types/type-component-props';
+import { IDragHook, IDragHookAttr } from 'src/types/type-hook';
 
 interface Props {
   block: BaseBlockModel;
-  confines: ConfinesScene
-  zoom?: number;
+  confines: IConfines
+  zoom: number;
 }
 
 /* Props */
 // property default value...
 const props = withDefaults(defineProps<Props>(), {
-  zoom: 1
 });
 
 /* Emits */
@@ -32,7 +30,7 @@ const props = withDefaults(defineProps<Props>(), {
 /* Data */
 // declare reactive variables...
 const refBlock = ref<HTMLElement | null>(null);
-const dragHook: DragHook = {
+const dragHook: IDragHook = {
   dragStart: onDragStart,
   dragStop: onDragStop,
   move: onMove
@@ -42,7 +40,7 @@ const dragHook: DragHook = {
 // declare you composition api...
 const defaultPosition = { ...props.block.position };
 const dragBlock = useDrag(refBlock, defaultPosition, dragHook);
-const dragOffset = reactive<Position>(defaultPosition);
+const dragOffset = reactive<IPosition>(defaultPosition);
 
 /* Life hooks */
 // life cycle hooks...
@@ -61,15 +59,16 @@ const style = computed(() => {
 
 /* Methods */
 // promote your methods...
-function onDragStart(data: DragHookAttr) {
-  console.log('drag start');
+function onDragStart(data: IDragHookAttr) {
+  props.block.setActive(true);
 }
 
-function onDragStop({ position }: DragHookAttr) {
+function onDragStop({ position }: IDragHookAttr) {
   props.block.update({ position });
+  props.block.setActive(false);
 }
 
-function onMove(data: DragHookAttr) {
+function onMove(data: IDragHookAttr) {
   // Определяем координаты блока с учетом zoom
   const { x, y } = data.position;
   const valueX = x / props.zoom;
@@ -88,6 +87,7 @@ function onMove(data: DragHookAttr) {
 
 <template>
   <div
+    :id="block.elementId"
     ref="refBlock"
     class="block-constructor"
     :style="style"
@@ -96,9 +96,11 @@ function onMove(data: DragHookAttr) {
       class="block-constructor__header"
       @mousedown="dragBlock.dragStart"
     >
-      header {{ block.active }}
+      <slot name="header" />
     </header>
-    <div class="block-constructor__content">content</div>
+    <div class="block-constructor__content">
+      <slot />
+    </div>
   </div>
 </template>
 
@@ -113,20 +115,18 @@ $border-radius: 8px;
   position: absolute;
   display: flex;
   flex-direction: column;
-  &__header {
-    height: 30px;
-    background-color: $primary;
-    color: white;
-    border-top-left-radius: $border-radius;
-    border-top-right-radius: $border-radius;
-  }
   &__content {
+    position: relative;
+    padding: 10px 0;
     flex-grow: 1;
     background-color: white;
     border-bottom-left-radius: $border-radius;
     border-bottom-right-radius: $border-radius;
     border: 1px solid $primary;
     border-top: none;
+  }
+  &__header {
+    height: 30px;
   }
 }
 </style>

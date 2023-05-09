@@ -1,17 +1,17 @@
-import { CompositionUseObserver, ObserverType } from 'src/types/composition';
 import { ref, onBeforeUnmount } from 'vue';
+import { FCompositionUseObserver, IObserverType } from 'src/types/type-composition';
 
-const useObserver: CompositionUseObserver = (type, elem, callback = () => ({})) => {
+const useObserver: FCompositionUseObserver = (type, elem, callback = () => ({})) => {
   onBeforeUnmount(() => {
     disconnectObserver();
   });
-  const observers: ObserverType = {
+  const observers: IObserverType = {
     resize: () => new ResizeObserver(callback)
   };
 
   const observer = ref<ResizeObserver | null>(null);
 
-  function createObserver(elem: HTMLDivElement) {
+  function createObserver(elem: HTMLElement) {
     const observer = observers[type]();
     observer.observe(elem);
     return observer;

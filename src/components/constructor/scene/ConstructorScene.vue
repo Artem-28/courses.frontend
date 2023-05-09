@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed } from 'vue';
+import { computed, onMounted, nextTick, ref } from 'vue';
 
 /* Composition */
 // import you composition api...
@@ -20,6 +20,7 @@ import ControlScene from 'components/constructor/scene/ControlScene.vue';
 
 /* Data */
 // declare reactive variables...
+const loading = ref<boolean>(true);
 
 /* Composition */
 // declare you composition api...
@@ -28,6 +29,11 @@ const zoom = useModel(sceneStore, null, 'zoom', sceneStore.updateZoom);
 
 /* Life hooks */
 // life cycle hooks...
+onMounted(async () => {
+  await nextTick();
+  loading.value = false;
+  console.log('mounted scene');
+});
 
 /* Computed */
 // you computational properties...
@@ -56,6 +62,9 @@ function onWheelScene(e: WheelEvent) {
 <template>
   <div @wheel.ctrl="onWheelScene" class="constructor-scene">
     <div :style="sizeScene" class="constructor-scene__cells" />
+    <div v-if="!loading" :style="styleScene" class="constructor-scene__substrate">
+      <slot name="substrate" />
+    </div>
     <div :style="styleScene" class="constructor-scene__inner">
       <slot :zoom="zoom" :confines="sceneStore.confines" />
     </div>
@@ -102,13 +111,16 @@ $cell-template: linear-gradient($cell-color, transparent 1px),
     right: 50px;
     z-index: 100;
   }
-  &__inner {
+  &__inner, &__substrate {
     z-index: 2;
     left: 0;
     top: 0;
     position: relative;
     transform-origin: top left;
     overflow: hidden;
+  }
+  &__substrate {
+    position: absolute;
   }
 }
 
