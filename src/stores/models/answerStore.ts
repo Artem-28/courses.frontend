@@ -16,7 +16,6 @@ export const useAnswerStore = defineStore('answer', {
     },
     answersByKey: (state) => (key: keyof BaseAnswerModel, value: any): BaseAnswerModel[] => {
       const items = Object.values(state._items);
-      console.log(items);
       return items.filter(item => item[key] === value);
     }
   },

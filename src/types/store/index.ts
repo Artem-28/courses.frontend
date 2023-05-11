@@ -6,7 +6,7 @@ export interface IStoreModel {
   answer?: ReturnType<typeof useAnswerStore> | null;
 }
 
-export type { IConnectionLineState, ILineElementIds } from 'src/types/store/type-connection-line';
+export type { IConnectionLineState, ILineElementIds, ILineElementData, FUpdateCreateLineData } from 'src/types/store/type-connection-line';
 export type { ISceneState } from 'src/types/store/type-scene';
 export type { IQuestionState, FQuestionById, FUpdateActiveBlock } from 'src/types/store/type-question';
 export type { IAnswerState, FAnswerByKey, FAnswerInsert } from 'src/types/store/type-answer';

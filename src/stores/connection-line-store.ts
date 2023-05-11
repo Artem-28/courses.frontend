@@ -1,5 +1,5 @@
 import { defineStore } from 'pinia';
-import { IConnectionLineState, ILineElementIds } from 'src/types/store/type-connection-line';
+import { IConnectionLineState, ILineElementData, ILineElementIds } from 'src/types/store/type-connection-line';
 
 export const useConnectionLineStore = defineStore('connection-line', {
   state: (): IConnectionLineState => ({
@@ -7,27 +7,27 @@ export const useConnectionLineStore = defineStore('connection-line', {
   }),
   getters: {
     lineDOMElementIds: (state) => {
-      return Object.entries(state._lineData).reduce((acc, [toDOMId, fromDOMIds]) => {
-        const data = fromDOMIds.map(DOMId => ({ from: DOMId, to: toDOMId }));
-        return [...acc, ...data];
+      return Object.entries(state._lineData).reduce((acc, [toDOMId, fromData]) => {
+        const lineData = fromData.map(data => ({ from: data.elementId, fromContainer: data.containerId, to: toDOMId }));
+        return [...acc, ...lineData];
       }, [] as ILineElementIds[]);
     }
   },
   actions: {
-    insert(toDOMId: string, fromDOMIds: string[]) {
+    insert(toDOMId: string, fromDOMIds: ILineElementData[]) {
       this._lineData[toDOMId] = fromDOMIds;
     },
-    update(toDOMId: string, fromDOMIds: string[]) {
+    update(toDOMId: string, fromData: ILineElementData[]) {
       const currentToIds = this._lineData[toDOMId] || [];
-      this._lineData[toDOMId] = [...new Set([...currentToIds, ...fromDOMIds])] as string[];
+      this._lineData[toDOMId] = [...currentToIds, ...fromData];
     },
-    updateOrCreate (toDOMId: string, fromDOMIds: string[]) {
-      const hasKey = Object.prototype.hasOwnProperty.call(this._lineData, toDOMId);
+    updateOrCreateLineData (toElementId: string, fromData: ILineElementData[]) {
+      const hasKey = Object.prototype.hasOwnProperty.call(this._lineData, toElementId);
       if (hasKey) {
-        this.update(toDOMId, fromDOMIds);
+        this.update(toElementId, fromData);
         return;
       }
-      this.insert(toDOMId, fromDOMIds);
+      this.insert(toElementId, fromData);
     }
   }
 });

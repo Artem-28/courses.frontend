@@ -63,7 +63,7 @@ function onWheelScene(e: WheelEvent) {
   <div @wheel.ctrl="onWheelScene" class="constructor-scene">
     <div :style="sizeScene" class="constructor-scene__cells" />
     <div v-if="!loading" :style="styleScene" class="constructor-scene__substrate">
-      <slot name="substrate" />
+      <slot :zoom="zoom" name="substrate" />
     </div>
     <div :style="styleScene" class="constructor-scene__inner">
       <slot :zoom="zoom" :confines="sceneStore.confines" />

@@ -1,5 +1,13 @@
 <script setup lang="ts">
-import { defineEmits, defineProps, withDefaults, onMounted, ref } from 'vue';
+import { defineEmits, defineProps, withDefaults, onMounted, ref, computed, watch } from 'vue';
+import {
+  FGetCacheElement,
+  FSetCacheElement,
+  IPosition,
+  ISize
+} from 'src/types/type-component-props';
+import useObserver from 'src/composition/useObserver';
+import useConnectionLinePoint from 'src/composition/useConnectionLinePoint';
 
 /* Composition */
 // import you composition api...
@@ -10,10 +18,14 @@ import { defineEmits, defineProps, withDefaults, onMounted, ref } from 'vue';
 /* Types */
 // declare components component...
 interface Props {
-  fromElementId: string,
-  toElementId: string,
-  getCacheElement?: (elementId: string) => HTMLElement | null,
-  setCacheElement?: (element: HTMLElement) => void;
+  fromElementId: string;
+  fromContainerId: string;
+  toElementId: string;
+  activeElementId: string | null;
+  zoom: number;
+  offset: IPosition,
+  getCacheElement?: FGetCacheElement;
+  setCacheElement?: FSetCacheElement;
 }
 interface Emit {
   (e: 'update:modelValue', value: string): void;
@@ -29,20 +41,75 @@ const emit = defineEmits<Emit>();
 
 /* Data */
 // declare reactive variables...
-const isComplete = ref<boolean>(false);
+const fromElement = ref<HTMLElement | null>(null);
+const toElement = ref<HTMLElement | null>(null);
+const fromElementContainer = ref<HTMLElement | null>(null);
+const fromObserver = useObserver('mutation', fromElementContainer, fromObserve);
+const toObserver = useObserver('mutation', toElement, toObserve);
 
 /* Composition */
 // declare you composition api...
+const {
+  updateElementPosition,
+  updateElementSize,
+  fromLeftPoint,
+  fromRightPoint,
+  toTopPoint,
+  toRightPoint,
+  toBottomPoint,
+  toLeftPoint,
+  fromPoint,
+  toPoint
+} = useConnectionLinePoint(fromElement, toElement);
 
 /* Life hooks */
 // life cycle hooks...
+
 onMounted(() => {
-  const fromElement = getElement(props.fromElementId);
-  console.log(fromElement);
+  setElements();
+  if (!isComplete.value) return;
+  updateElementSize('from', props.zoom);
+  updateElementSize('to', props.zoom);
+  updateElementPosition('from', props.offset, props.zoom);
+  updateElementPosition('to', props.offset, props.zoom);
 });
 
 /* Computed */
 // you computational properties...
+const isComplete = computed(() => {
+  return fromElement.value && toElement.value && fromElementContainer.value;
+});
+
+const activeFromElement = computed(() => {
+  return props.activeElementId === props.fromContainerId;
+});
+
+const activeToElement = computed(() => {
+  return props.activeElementId === props.toElementId;
+});
+
+const pointData = computed(() => {
+  const from = fromPoint.value;
+  const to = toPoint.value;
+  if (!from || !to) return;
+  return `M ${from.x} ${from.y} L ${to.x} ${to.y}`;
+});
+
+watch(activeFromElement, (value) => {
+  if (value) {
+    fromObserver.enable();
+    return;
+  }
+  fromObserver.disconnect();
+});
+
+watch(activeToElement, (value) => {
+  if (value) {
+    toObserver.enable();
+    return;
+  }
+  toObserver.disconnect();
+});
 
 /* Methods */
 // promote your methods...
@@ -55,14 +122,35 @@ function getElement(elementId: string, cache = false) {
 
   element = document.getElementById(elementId);
   if (cache && element && typeof props.setCacheElement === 'function') {
-    props.setCacheElement(element);
+    props.setCacheElement(elementId, element);
   }
   return element;
 }
+function setElements() {
+  fromElement.value = getElement(props.fromElementId);
+  toElement.value = getElement(props.toElementId, true);
+  fromElementContainer.value = getElement(props.fromContainerId, true);
+}
+function fromObserve() {
+  updateElementPosition('from', props.offset, props.zoom);
+}
+function toObserve() {
+  updateElementPosition('to', props.offset, props.zoom);
+}
+
 </script>
 
 <template>
-  <path d="M 10 210 L 110 10" stroke-width="3" stroke="red"  />
+  <g>
+    <!-- flexible pipes -->
+    <path v-if="pointData" :d="pointData" stroke-width="1" stroke="red"  />
+<!--    <path :d="pointData.fromRightData" stroke-width="3" stroke="red"  />-->
+<!--    <path :d="pointData.toRightData" stroke-width="3" stroke="blue"  />-->
+<!--    <path :d="pointData.toLeftData" stroke-width="3" stroke="blue"  />-->
+<!--    <path :d="pointData.toTopData" stroke-width="3" stroke="blue"  />-->
+<!--    <path :d="pointData.toBottomData" stroke-width="3" stroke="blue"  />-->
+  </g>
+<!--  <path d="M 10 210 L 110 10" stroke-width="3" stroke="red"  />-->
 </template>
 
 <style scoped lang="scss">

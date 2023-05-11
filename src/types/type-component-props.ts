@@ -1,6 +1,15 @@
+import { Ref } from 'vue';
+
 export interface ICustomProps {
   [key: string]: any;
 }
+export interface ICacheDOMElements {
+  [DOMElementId: string]: HTMLElement;
+}
+
+export type FSetCacheElement = (elemId: string, elem: HTMLElement) => void;
+export type FGetCacheElement = (elemId: string) => HTMLElement | null;
+
 export interface IPosition {
   x: number,
   y: number,
@@ -24,3 +33,5 @@ export interface ILoginForm {
   email: string | null,
   password: string | null,
 }
+
+export type TRefHTMLElement = Ref<HTMLElement | null>;

@@ -6,14 +6,15 @@ const useObserver: FCompositionUseObserver = (type, elem, callback = () => ({}))
     disconnectObserver();
   });
   const observers: IObserverType = {
-    resize: () => new ResizeObserver(callback)
+    resize: () => new ResizeObserver(callback),
+    mutation: () => new MutationObserver(callback)
   };
 
-  const observer = ref<ResizeObserver | null>(null);
+  const observer = ref<ResizeObserver | MutationObserver | null>(null);
 
   function createObserver(elem: HTMLElement) {
     const observer = observers[type]();
-    observer.observe(elem);
+    observer.observe(elem, { attributes: true });
     return observer;
   }
 

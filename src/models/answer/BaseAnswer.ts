@@ -1,9 +1,13 @@
 import { IAnswerData, IAnswerRelations } from 'src/types/type-models';
 import { useQuestionStore } from 'stores/models/question-store';
+import { useConnectionLineStore } from 'stores/connection-line-store';
 
 const store: IAnswerRelations = {
   question: {
     byId: null
+  },
+  connectionLine: {
+    updateOrCreate: null
   }
 };
 
@@ -23,7 +27,9 @@ export default class BaseAnswerModel {
 
   _initializeStore() {
     const { questionById } = useQuestionStore();
+    const { updateOrCreateLineData } = useConnectionLineStore();
     store.question.byId = questionById;
+    store.connectionLine.updateOrCreate = updateOrCreateLineData;
   }
 
   get id() {
@@ -32,6 +38,11 @@ export default class BaseAnswerModel {
 
   get questionId() {
     return this._questionId;
+  }
+
+  get question() {
+    if (!store.question.byId) return null;
+    return store.question.byId(this._questionId);
   }
 
   get nextQuestionId() {
@@ -49,6 +60,17 @@ export default class BaseAnswerModel {
 
   get elementId() {
     return `answer-${this._id}`;
+  }
+
+  setConnectionLine() {
+    const nextQuestion = this.nextQuestion;
+    const question = this.question;
+    if (!nextQuestion || !question || !store.connectionLine.updateOrCreate) return null;
+    const fromData = {
+      elementId: this.elementId,
+      containerId: question.elementId
+    };
+    store.connectionLine.updateOrCreate(nextQuestion.elementId, [fromData]);
   }
 
   update(updateData: Partial<IAnswerData>) {

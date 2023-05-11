@@ -1,5 +1,5 @@
 import BaseAnswerModel from 'src/models/answer/BaseAnswer';
-import { FQuestionById } from 'src/types/store';
+import { FQuestionById, FUpdateCreateLineData } from 'src/types/store'
 
 export interface IAnswerData {
   id: number;
@@ -15,5 +15,8 @@ export interface IAnswerCreateMethods {
 export interface IAnswerRelations {
   question: {
     byId: FQuestionById | null;
+  },
+  connectionLine: {
+    updateOrCreate: FUpdateCreateLineData | null;
   }
 }

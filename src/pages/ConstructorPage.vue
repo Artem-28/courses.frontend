@@ -44,18 +44,18 @@ const blockData: IQuestionData[] = [
     position: { x: 350, y: 100 },
     type: 'freetext',
     answers: [
-      {
-        id: 2,
-        questionId: 2,
-        nextQuestionId: 3,
-        content: 'Переход к блоку 3'
-      },
-      {
-        id: 3,
-        questionId: 2,
-        nextQuestionId: 4,
-        content: 'Переход к блоку 4'
-      }
+      // {
+      //   id: 2,
+      //   questionId: 2,
+      //   nextQuestionId: 3,
+      //   content: 'Переход к блоку 3'
+      // },
+      // {
+      //   id: 3,
+      //   questionId: 2,
+      //   nextQuestionId: 4,
+      //   content: 'Переход к блоку 4'
+      // }
     ]
   },
   {
@@ -63,12 +63,12 @@ const blockData: IQuestionData[] = [
     position: { x: 600, y: 100 },
     type: 'freetext',
     answers: [
-      {
-        id: 4,
-        questionId: 3,
-        nextQuestionId: 2,
-        content: 'Переход к блоку 2'
-      }
+      // {
+      //   id: 4,
+      //   questionId: 3,
+      //   nextQuestionId: 2,
+      //   content: 'Переход к блоку 2'
+      // }
     ]
   },
   {
@@ -109,6 +109,9 @@ function getContentType(question: BaseQuestionModel) {
 </script>
 
 <template>
+  <div class="question" style="{ position: absolute; left: 0; top: 0}">
+    <div class="answer"></div>
+  </div>
   <ConstructorScene>
     <template v-slot:default="{ zoom, confines }">
       <ConstructorBlock
@@ -127,8 +130,11 @@ function getContentType(question: BaseQuestionModel) {
       </ConstructorBlock>
     </template>
 
-    <template v-slot:substrate>
-      <ConstructorConnectionsField :active-element-id="activeElementId" />
+    <template v-slot:substrate="{ zoom }">
+      <ConstructorConnectionsField
+        :active-element-id="activeElementId"
+        :zoom="zoom"
+      />
     </template>
   </ConstructorScene>
 </template>

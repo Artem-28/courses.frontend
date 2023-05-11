@@ -1,11 +1,11 @@
 import { defineStore } from 'pinia';
-import { SceneState } from 'src/types/store/type-scene';
+import { ISceneState } from 'src/types/store';
 
 export const useSceneStore = defineStore('scene', {
-  state: (): SceneState => ({
+  state: (): ISceneState => ({
     _ident: 40,
     _size: { width: 10000, height: 10000 },
-    _zoom: 1
+    _zoom: 1.1
   }),
   getters: {
     confines: (state) => {
@@ -23,7 +23,7 @@ export const useSceneStore = defineStore('scene', {
   actions: {
     updateZoom(updateData: number) {
       const delta = updateData > 0 ? 0.1 : -0.1;
-      this._zoom = Math.max(0.1, Math.min(2, this.zoom - delta));
+      this._zoom = +Math.max(0.1, Math.min(2, this.zoom - delta)).toFixed(1);
     }
   }
 });

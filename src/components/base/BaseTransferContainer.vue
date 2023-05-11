@@ -1,8 +1,7 @@
 <script setup lang="ts">
-import { defineEmits, defineProps, withDefaults, onMounted } from 'vue';
+import { defineEmits, defineProps, withDefaults, onMounted, nextTick } from 'vue';
 import BaseTransferPoint from 'components/base/BaseTransferPoint.vue';
 import BaseAnswer from 'src/models/answer/BaseAnswer';
-import { useConnectionLineStore } from 'stores/connection-line-store';
 
 /* Composition */
 // import you composition api...
@@ -32,12 +31,12 @@ const emit = defineEmits<Emit>();
 
 /* Composition */
 // declare you composition api...
-const connectionLineStore = useConnectionLineStore();
 
 /* Life hooks */
 // life cycle hooks...
-onMounted(() => {
-  setConnectionLine();
+onMounted(async () => {
+  await nextTick();
+  props.entity.setConnectionLine();
 });
 
 /* Computed */
@@ -45,11 +44,6 @@ onMounted(() => {
 
 /* Methods */
 // promote your methods...
-function setConnectionLine() {
-  const nextQuestion = props.entity.nextQuestion;
-  if (!nextQuestion) return;
-  connectionLineStore.updateOrCreate(nextQuestion.elementId, [props.entity.elementId]);
-}
 </script>
 
 <template>
