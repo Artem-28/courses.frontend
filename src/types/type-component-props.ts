@@ -11,12 +11,12 @@ export type FSetCacheElement = (elemId: string, elem: HTMLElement) => void;
 export type FGetCacheElement = (elemId: string) => HTMLElement | null;
 
 export interface IPosition {
-  x: number,
-  y: number,
+  x: number;
+  y: number;
 }
 export interface IRange {
-  min: number,
-  max: number,
+  min: number;
+  max: number;
 }
 
 export interface ISize {
@@ -25,13 +25,25 @@ export interface ISize {
 }
 
 export interface IConfines {
-  x: IRange,
-  y: IRange,
+  x: IRange;
+  y: IRange;
+}
+
+export interface IFromElementPoint {
+  left: IPosition;
+  right: IPosition;
+}
+
+export interface IToElementPoint {
+  top: IPosition;
+  right: IPosition;
+  bottom: IPosition;
+  left: IPosition;
 }
 
 export interface ILoginForm {
-  email: string | null,
-  password: string | null,
+  email: string | null;
+  password: string | null;
 }
 
 export type TRefHTMLElement = Ref<HTMLElement | null>;

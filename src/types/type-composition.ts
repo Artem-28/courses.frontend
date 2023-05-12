@@ -1,5 +1,12 @@
-import { ComputedRef, Ref } from 'vue'
-import { IPosition, TRefHTMLElement } from 'src/types/type-component-props';
+import { ComputedRef, Ref } from 'vue';
+import {
+  FGetCacheElement,
+  FSetCacheElement,
+  IFromElementPoint,
+  IPosition,
+  IToElementPoint,
+  TRefHTMLElement
+} from 'src/types/type-component-props'
 import { FCallback, IDragHook } from 'src/types/type-hook';
 
 export type FCompositionUseDrag = (refElement: TRefHTMLElement, position: IPosition, hook?: IDragHook) => {
@@ -19,14 +26,28 @@ export type FCompositionUseObserver = <K extends keyof IObserverType>(type: K, e
 };
 
 export type FCompositionUseConnectionLinePoint = (refFromElement: TRefHTMLElement, refToElement: TRefHTMLElement) => {
-  fromLeftPoint: ComputedRef<IPosition>;
-  fromRightPoint: ComputedRef<IPosition>;
-  toTopPoint: ComputedRef<IPosition>;
-  toRightPoint: ComputedRef<IPosition>;
-  toBottomPoint: ComputedRef<IPosition>;
-  toLeftPoint: ComputedRef<IPosition>;
-  fromPoint: ComputedRef<IPosition | null>;
-  toPoint: ComputedRef<IPosition | null>;
-  updateElementSize: (type: 'from' | 'to', zoom?: number) => void;
-  updateElementPosition: (type: 'from' | 'to', offset?: IPosition, zoom?: number) => void;
+  fromPoints: ComputedRef<IFromElementPoint>;
+  toPoints: ComputedRef<IToElementPoint>;
+  updateSize: (type: 'from' | 'to', zoom?: number) => void;
+  updatePosition: (type: 'from' | 'to', offset?: IPosition, zoom?: number) => void;
+}
+
+export type FCompositionUseConnectionSwitchPoint = (fromPoints: ComputedRef<IFromElementPoint>, toPoints: ComputedRef<IToElementPoint>) => {
+  fromPoint: ComputedRef<IPosition>;
+  toPoint: ComputedRef<IPosition>;
+  fromPointType: ComputedRef<keyof IFromElementPoint>
+  toPointType: ComputedRef<keyof IToElementPoint>
+}
+
+export type FCompositionUseConnectionLineRender = (
+  fromPoint: ComputedRef<IPosition>,
+  toPoint: ComputedRef<IPosition>,
+  fromPointType: ComputedRef<keyof IFromElementPoint>,
+  toPointType: ComputedRef<keyof IToElementPoint>
+) => {
+  lineData: ComputedRef<string>;
+}
+
+export type FCompositionUseDOMElement = (setCacheCallback?: FSetCacheElement | null, getCacheCallback?: FGetCacheElement ) => {
+  getElement: (elementId: string, cache?: boolean) => HTMLElement | null
 }

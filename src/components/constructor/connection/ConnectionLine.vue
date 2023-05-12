@@ -3,11 +3,13 @@ import { defineEmits, defineProps, withDefaults, onMounted, ref, computed, watch
 import {
   FGetCacheElement,
   FSetCacheElement,
-  IPosition,
-  ISize
+  IPosition
 } from 'src/types/type-component-props';
 import useObserver from 'src/composition/useObserver';
 import useConnectionLinePoint from 'src/composition/useConnectionLinePoint';
+import useConnectionSwitchPoint from 'src/composition/useConnectionSwitchPoint';
+import useDOMElement from 'src/composition/useDOMElement';
+import useConnectionLineRender from 'src/composition/useConnectionLineRender';
 
 /* Composition */
 // import you composition api...
@@ -44,23 +46,15 @@ const emit = defineEmits<Emit>();
 const fromElement = ref<HTMLElement | null>(null);
 const toElement = ref<HTMLElement | null>(null);
 const fromElementContainer = ref<HTMLElement | null>(null);
-const fromObserver = useObserver('mutation', fromElementContainer, fromObserve);
-const toObserver = useObserver('mutation', toElement, toObserve);
 
 /* Composition */
 // declare you composition api...
-const {
-  updateElementPosition,
-  updateElementSize,
-  fromLeftPoint,
-  fromRightPoint,
-  toTopPoint,
-  toRightPoint,
-  toBottomPoint,
-  toLeftPoint,
-  fromPoint,
-  toPoint
-} = useConnectionLinePoint(fromElement, toElement);
+const fromObserver = useObserver('mutation', fromElementContainer, fromObserve);
+const toObserver = useObserver('mutation', toElement, toObserve);
+const { getElement } = useDOMElement(props.setCacheElement, props.getCacheElement);
+const { updatePosition, updateSize, fromPoints, toPoints } = useConnectionLinePoint(fromElement, toElement);
+const { fromPoint, toPoint, fromPointType, toPointType } = useConnectionSwitchPoint(fromPoints, toPoints);
+const { lineData } = useConnectionLineRender(fromPoint, toPoint, fromPointType, toPointType);
 
 /* Life hooks */
 // life cycle hooks...
@@ -68,10 +62,10 @@ const {
 onMounted(() => {
   setElements();
   if (!isComplete.value) return;
-  updateElementSize('from', props.zoom);
-  updateElementSize('to', props.zoom);
-  updateElementPosition('from', props.offset, props.zoom);
-  updateElementPosition('to', props.offset, props.zoom);
+  updateSize('from', props.zoom);
+  updateSize('to', props.zoom);
+  updatePosition('from', props.offset, props.zoom);
+  updatePosition('to', props.offset, props.zoom);
 });
 
 /* Computed */
@@ -86,13 +80,6 @@ const activeFromElement = computed(() => {
 
 const activeToElement = computed(() => {
   return props.activeElementId === props.toElementId;
-});
-
-const pointData = computed(() => {
-  const from = fromPoint.value;
-  const to = toPoint.value;
-  if (!from || !to) return;
-  return `M ${from.x} ${from.y} L ${to.x} ${to.y}`;
 });
 
 watch(activeFromElement, (value) => {
@@ -113,29 +100,16 @@ watch(activeToElement, (value) => {
 
 /* Methods */
 // promote your methods...
-function getElement(elementId: string, cache = false) {
-  let element: HTMLElement | null = null;
-  if (cache && typeof props.getCacheElement === 'function') {
-    element = props.getCacheElement(elementId);
-  }
-  if (element) return element;
-
-  element = document.getElementById(elementId);
-  if (cache && element && typeof props.setCacheElement === 'function') {
-    props.setCacheElement(elementId, element);
-  }
-  return element;
-}
 function setElements() {
   fromElement.value = getElement(props.fromElementId);
   toElement.value = getElement(props.toElementId, true);
   fromElementContainer.value = getElement(props.fromContainerId, true);
 }
 function fromObserve() {
-  updateElementPosition('from', props.offset, props.zoom);
+  updatePosition('from', props.offset, props.zoom);
 }
 function toObserve() {
-  updateElementPosition('to', props.offset, props.zoom);
+  updatePosition('to', props.offset, props.zoom);
 }
 
 </script>
@@ -143,7 +117,7 @@ function toObserve() {
 <template>
   <g>
     <!-- flexible pipes -->
-    <path v-if="pointData" :d="pointData" stroke-width="1" stroke="red"  />
+    <path :d="lineData" stroke-width="1" stroke="red"  />
 <!--    <path :d="pointData.fromRightData" stroke-width="3" stroke="red"  />-->
 <!--    <path :d="pointData.toRightData" stroke-width="3" stroke="blue"  />-->
 <!--    <path :d="pointData.toLeftData" stroke-width="3" stroke="blue"  />-->
