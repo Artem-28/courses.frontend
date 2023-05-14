@@ -2,7 +2,7 @@ import { ref, computed } from 'vue';
 import moment from 'moment';
 // eslint-disable-next-line no-undef
 import Timeout = NodeJS.Timeout
-import { TimerHook } from 'src/types/hook';
+import { TimerHook } from 'src/types/type-hook';
 
 function useTimer(hook?: TimerHook) {
   const timer = ref<number>(0);
