@@ -32,7 +32,6 @@ const zoom = useModel(sceneStore, null, 'zoom', sceneStore.updateZoom);
 onMounted(async () => {
   await nextTick();
   loading.value = false;
-  console.log('mounted scene');
 });
 
 /* Computed */
@@ -118,6 +117,7 @@ $cell-template: linear-gradient($cell-color, transparent 1px),
     position: relative;
     transform-origin: top left;
     overflow: hidden;
+    transition: all 0.3s ease-in-out;
   }
   &__substrate {
     position: absolute;

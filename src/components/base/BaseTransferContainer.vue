@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { defineEmits, defineProps, withDefaults, onMounted, nextTick } from 'vue';
+import { defineEmits, defineProps, withDefaults, onMounted, nextTick, computed } from 'vue';
 import BaseTransferPoint from 'components/base/BaseTransferPoint.vue';
 import BaseAnswer from 'src/models/answer/BaseAnswer';
 
@@ -41,18 +41,28 @@ onMounted(async () => {
 
 /* Computed */
 // you computational properties...
+const thereIsConnection = computed(() => {
+  return !!props.entity.nextQuestionId;
+});
 
 /* Methods */
 // promote your methods...
 </script>
 
 <template>
-  <div :id="`${entity.elementId}`" class="base-transfer-container">
-    <BaseTransferPoint class="base-transfer-container__point--left" />
+  <div :id="`${entity.elementId}`" :class="['base-transfer-container', { active: thereIsConnection }]">
+    <BaseTransferPoint
+      v-if="thereIsConnection"
+      :active="thereIsConnection"
+      class="base-transfer-container__point--left"
+    />
     <div class="base-transfer-container__content">
       <slot/>
     </div>
-    <BaseTransferPoint class="base-transfer-container__point--right" />
+    <BaseTransferPoint
+      :active="thereIsConnection"
+      class="base-transfer-container__point--right"
+    />
   </div>
 </template>
 
@@ -99,13 +109,43 @@ onMounted(async () => {
   transform: translateY(-50%);
   content: '';
   width: 50%;
-  height: 4px;
-  background: black;
+  height: 3px;
+  background: $text-body-secondary;
 }
 .base-transfer-container::after {
   right: 0;
 }
 .base-transfer-container::before {
   left: 0;
+  display: none;
+}
+.base-transfer-container.active::after,
+.base-transfer-container.active::before {
+  background: $secondary;
+  display: none;
+}
+.base-transfer-container.active {
+  .base-transfer-container__point--left,
+  .base-transfer-container__point--right {
+    display: none;
+  }
+}
+.base-transfer-container.active.active--right {
+  .base-transfer-container__point--right {
+    display: block;
+  }
+}
+
+.base-transfer-container.active.active--left {
+  .base-transfer-container__point--left {
+    display: block;
+  }
+}
+
+.base-transfer-container.active.active--right::after {
+  display: block;
+}
+.base-transfer-container.active.active--left::before {
+  display: block;
 }
 </style>

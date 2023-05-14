@@ -113,7 +113,7 @@ const useConnectionSwitchPoint: FCompositionUseConnectionSwitchPoint = (fromPoin
         if (dXFromLToB.value > 40) {
           return 'bottom';
         }
-        return 'bottom';
+        return 'right';
       case 'right-top':
         if (dXFromRToL.value > 40) {
           return 'left';

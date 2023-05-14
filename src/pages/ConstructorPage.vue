@@ -36,6 +36,12 @@ const blockData: IQuestionData[] = [
         questionId: 1,
         nextQuestionId: 2,
         content: 'Переход к блоку 2'
+      },
+      {
+        id: 10,
+        questionId: 1,
+        nextQuestionId: null,
+        content: 'Переход к блоку 2'
       }
     ]
   },
@@ -44,18 +50,18 @@ const blockData: IQuestionData[] = [
     position: { x: 350, y: 100 },
     type: 'freetext',
     answers: [
-      // {
-      //   id: 2,
-      //   questionId: 2,
-      //   nextQuestionId: 3,
-      //   content: 'Переход к блоку 3'
-      // },
-      // {
-      //   id: 3,
-      //   questionId: 2,
-      //   nextQuestionId: 4,
-      //   content: 'Переход к блоку 4'
-      // }
+      {
+        id: 2,
+        questionId: 2,
+        nextQuestionId: 3,
+        content: 'Переход к блоку 3'
+      },
+      {
+        id: 3,
+        questionId: 2,
+        nextQuestionId: 4,
+        content: 'Переход к блоку 4'
+      }
     ]
   },
   {
@@ -63,12 +69,12 @@ const blockData: IQuestionData[] = [
     position: { x: 600, y: 100 },
     type: 'freetext',
     answers: [
-      // {
-      //   id: 4,
-      //   questionId: 3,
-      //   nextQuestionId: 2,
-      //   content: 'Переход к блоку 2'
-      // }
+      {
+        id: 4,
+        questionId: 3,
+        nextQuestionId: 2,
+        content: 'Переход к блоку 2'
+      }
     ]
   },
   {

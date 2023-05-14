@@ -6,7 +6,7 @@ import {
   IPosition,
   IToElementPoint,
   TRefHTMLElement
-} from 'src/types/type-component-props'
+} from 'src/types/type-component-props';
 import { FCallback, IDragHook } from 'src/types/type-hook';
 
 export type FCompositionUseDrag = (refElement: TRefHTMLElement, position: IPosition, hook?: IDragHook) => {

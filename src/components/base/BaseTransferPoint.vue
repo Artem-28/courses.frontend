@@ -11,6 +11,7 @@ import { computed, defineEmits, defineProps, withDefaults } from 'vue';
 // declare components component...
 interface Props {
   size?: number;
+  active?: boolean
 }
 interface Emit {
   (e: 'update:modelValue', value: string): void;
@@ -19,7 +20,8 @@ interface Emit {
 /* Props */
 // property default value...
 const props = withDefaults(defineProps<Props>(), {
-  size: 16
+  size: 16,
+  active: false
 });
 
 /* Emits */
@@ -49,7 +51,7 @@ const stylePoint = computed(() => {
 </script>
 
 <template>
-  <span :style="stylePoint" class="base-transfer-point" />
+  <span :style="stylePoint" :class="['base-transfer-point', { active }]" />
 </template>
 
 <style scoped lang="scss">
@@ -60,6 +62,9 @@ const stylePoint = computed(() => {
 // style component...
 .base-transfer-point {
   display: block;
-  background: black;
+  background: $text-body-secondary;
+}
+.base-transfer-point.active {
+  background: $secondary;
 }
 </style>

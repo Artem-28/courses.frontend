@@ -41,17 +41,20 @@ const useDrag: FCompositionUseDrag = (refElement, position, hook) => {
     moveAt(e);
 
     scene.value.addEventListener('mousemove', moveAt);
+    scene.value.addEventListener('wheel', wheelSceneHandler);
     refElement.value.addEventListener('mouseup', dragStop);
   }
 
   function dragStop() {
     if (!refElement.value) return;
     scene.value.removeEventListener('mousemove', moveAt);
+    scene.value.removeEventListener('wheel', wheelSceneHandler);
     refElement.value.removeEventListener('mouseup', dragStop);
     callHook('dragStop');
   }
 
   function moveAt(e: MouseEvent) {
+    e.preventDefault();
     const rect = sceneRect as DOMRect;
     dragOffset.x = (e.pageX - rect.left - shift.x);
     dragOffset.y = (e.pageY - rect.top - shift.y);
@@ -64,6 +67,10 @@ const useDrag: FCompositionUseDrag = (refElement, position, hook) => {
       top: elemRect.top + pageYOffset,
       left: elemRect.left + pageXOffset
     };
+  }
+
+  function wheelSceneHandler(e: WheelEvent) {
+    e.preventDefault();
   }
 
   return {

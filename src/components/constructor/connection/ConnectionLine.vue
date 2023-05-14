@@ -98,8 +98,17 @@ watch(activeToElement, (value) => {
   toObserver.disconnect();
 });
 
+watch(fromPointType, () => {
+  updateFromActiveClass();
+});
+
 /* Methods */
 // promote your methods...
+function updateFromActiveClass() {
+  if (!fromElement.value) return;
+  fromElement.value.classList.remove('active--left', 'active--right');
+  fromElement.value.classList.add(`active--${fromPointType.value}`);
+}
 function setElements() {
   fromElement.value = getElement(props.fromElementId);
   toElement.value = getElement(props.toElementId, true);
@@ -116,15 +125,41 @@ function toObserve() {
 
 <template>
   <g>
+    <defs>
+      <marker
+        id="markerTail"
+        viewBox="0 0 20 20"
+        refX="10"
+        refY="5"
+        markerUnits="userSpaceOnUse"
+        orient="auto"
+        markerWidth="20"
+        markerHeight="20"
+      >
+        <polyline points="0,0 10,5 0,10 3,5 0,0" fill="#26A69A" />
+      </marker>
+      <marker
+        id="markerCircle"
+        viewBox="0 0 10 10"
+        refX="0"
+        refY="5"
+        markerUnits="userSpaceOnUse"
+        markerWidth="10"
+        markerHeight="10"
+      >
+        <circle cx="5" cy="5" r="5" fill="#26A69A"  />
+      </marker>
+    </defs>
     <!-- flexible pipes -->
-    <path :d="lineData" stroke-width="1" stroke="red"  />
-<!--    <path :d="pointData.fromRightData" stroke-width="3" stroke="red"  />-->
-<!--    <path :d="pointData.toRightData" stroke-width="3" stroke="blue"  />-->
-<!--    <path :d="pointData.toLeftData" stroke-width="3" stroke="blue"  />-->
-<!--    <path :d="pointData.toTopData" stroke-width="3" stroke="blue"  />-->
-<!--    <path :d="pointData.toBottomData" stroke-width="3" stroke="blue"  />-->
+    <path
+      :d="lineData"
+      stroke="#26A69A"
+      stroke-width="2"
+      marker-mid="url(#markerCircle)"
+      marker-end="url(#markerTail)"
+      fill="none"
+    />
   </g>
-<!--  <path d="M 10 210 L 110 10" stroke-width="3" stroke="red"  />-->
 </template>
 
 <style scoped lang="scss">
