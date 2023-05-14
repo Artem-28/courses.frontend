@@ -115,9 +115,6 @@ function getContentType(question: BaseQuestionModel) {
 </script>
 
 <template>
-  <div class="question" style="{ position: absolute; left: 0; top: 0}">
-    <div class="answer"></div>
-  </div>
   <ConstructorScene>
     <template v-slot:default="{ zoom, confines }">
       <ConstructorBlock
