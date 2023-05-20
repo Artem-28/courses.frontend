@@ -1,13 +1,15 @@
-import { ComputedRef, Ref } from 'vue';
+import { ComputedRef, Ref, UnwrapRef } from 'vue';
 import {
   FGetCacheElement,
-  FSetCacheElement,
+  FSetCacheElement, IFormData,
   IFromElementPoint,
-  IPosition,
-  IToElementPoint,
-  TRefHTMLElement
-} from 'src/types/type-component-props';
-import { FCallback, IDragHook } from 'src/types/type-hook';
+  IPosition, IStep,
+  IToElementPoint, IValidateError, IValidateMessage, TConfirmCode,
+  TRefHTMLElement, TValidateProperty
+} from 'src/types/type-component-props'
+import { FCallback, IDragHook, ITimerHook } from 'src/types/type-hook';
+import { Validation } from '@vuelidate/core';
+import BaseConfirmCode from 'src/models/confirm-code/BaseConfirmCode'
 
 export type FCompositionUseDrag = (refElement: TRefHTMLElement, position: IPosition, hook?: IDragHook) => {
   position: IPosition,
@@ -48,6 +50,52 @@ export type FCompositionUseConnectionLineRender = (
   lineData: ComputedRef<string>;
 }
 
-export type FCompositionUseDOMElement = (setCacheCallback?: FSetCacheElement | null, getCacheCallback?: FGetCacheElement ) => {
+export type FCompositionUseDOMElement = (setCacheCallback?: FSetCacheElement | null, getCacheCallback?: FGetCacheElement) => {
   getElement: (elementId: string, cache?: boolean) => HTMLElement | null
 }
+
+export type FCompositionUseToggle = (value: boolean, look: boolean) => {
+  isToggle: Ref<UnwrapRef<boolean>>,
+  toggle: () => void;
+}
+
+export type FCompositionUseTimer = (hook?: ITimerHook) => {
+  timer: Ref<number>;
+  formatterTimer: ComputedRef<string>;
+  setTimer: (time: number) => void;
+  stopTimer: () => void;
+  startTimer: () => void;
+  pauseTimer: () => void;
+}
+
+export type FCompositionValidateMessage = (validate: Ref<Validation>, property: TValidateProperty) => {
+  errorMessage: Ref<IValidateMessage>;
+}
+
+export interface IResponseUseValidate {
+  validate: Ref<Validation>
+  errorMessage: Ref<IValidateMessage>;
+}
+
+export type FCompositionUseValidate = (formData: IFormData) => IResponseUseValidate;
+
+export type FCompositionStep = (steps: Array<IStep | string>, startStep?: string) => {
+  step: ComputedRef<IStep>;
+  nextStep: () => IStep;
+  prevStep: () => IStep;
+  setStep: (step: string) => IStep;
+  stepInfo: ComputedRef<{ start: boolean, end: boolean, count: number, current: number, stepValue: string }>;
+}
+//   {
+//   step: Ref<U>,
+//   nextStep: () => U
+//   prevStep: () => U
+//   stepInfo: ComputedRef<{ start: boolean, end: boolean }>
+// }
+
+export type FCompositionUseConfirmCode = (type: TConfirmCode) => {
+  code: Ref<BaseConfirmCode>,
+  confirmDelay: ComputedRef<number>
+  codeTime: ComputedRef<{ live: string, delay: string }>
+  sendCode: (payload: { email: string }) => void;
+};

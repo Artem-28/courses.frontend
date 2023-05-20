@@ -1,5 +1,5 @@
 import BaseAnswerModel from 'src/models/answer/BaseAnswer';
-import { FQuestionById, FUpdateCreateLineData } from 'src/types/store'
+import { FQuestionById, FUpdateCreateLineData } from 'src/types/store';
 
 export interface IAnswerData {
   id: number;

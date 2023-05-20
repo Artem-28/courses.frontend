@@ -10,7 +10,7 @@ import { defineEmits, defineProps, withDefaults } from 'vue';
 /* Types */
 // declare components component...
 interface Props {
-  label?: string;
+  value?: string;
 }
 interface Emit {
   (e: 'update:modelValue', value: string): void;
@@ -19,6 +19,7 @@ interface Emit {
 /* Props */
 // property default value...
 const props = withDefaults(defineProps<Props>(), {
+  value: ''
 });
 
 /* Emits */
@@ -41,10 +42,7 @@ const emit = defineEmits<Emit>();
 </script>
 
 <template>
-  <div class="base-input-wrapper">
-    <span v-if="label" class="base-input-wrapper__label" v-text="label" />
-    <slot />
-  </div>
+  <div>forgot</div>
 </template>
 
 <style scoped lang="scss">
@@ -53,13 +51,4 @@ const emit = defineEmits<Emit>();
 
 /* Selector */
 // style component...
-.base-input-wrapper {
-  &__label {
-    padding-left: 16px;
-    padding-bottom: 8px;
-    font-weight: 700;
-    font-size: 16px;
-    color: $text-body-primary;
-  }
-}
 </style>

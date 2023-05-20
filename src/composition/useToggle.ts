@@ -1,13 +1,14 @@
 import { ref } from 'vue';
+import { FCompositionUseToggle } from 'src/types/type-composition';
 
-function useToggle(value = false, lock = false) {
+const useToggle: FCompositionUseToggle = (value = false, lock = false) => {
   const isToggle = ref<boolean>(value);
-  const toggle = () => {
-    if (lock) return;
-    isToggle.value = !isToggle.value;
+  function toggle() {
+    if (!lock) {
+      isToggle.value = !isToggle.value;
+    }
   }
-
   return { isToggle, toggle };
-}
+};
 
 export default useToggle;

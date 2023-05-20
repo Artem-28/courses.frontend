@@ -2,9 +2,9 @@ import { ref, computed } from 'vue';
 import moment from 'moment';
 // eslint-disable-next-line no-undef
 import Timeout = NodeJS.Timeout
-import { TimerHook } from 'src/types/type-hook';
+import { FCompositionUseTimer } from 'src/types/type-composition';
 
-function useTimer(hook?: TimerHook) {
+const useTimer: FCompositionUseTimer = (hook?) => {
   const timer = ref<number>(0);
   let interval: Timeout | null = null;
 
@@ -50,6 +50,6 @@ function useTimer(hook?: TimerHook) {
     startTimer,
     pauseTimer
   };
-}
+};
 
 export default useTimer;

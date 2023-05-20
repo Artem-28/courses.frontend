@@ -1,6 +1,5 @@
 <script setup lang="ts">
-import { defineEmits, defineProps, withDefaults, ref } from 'vue';
-import moment from 'moment';
+import { defineEmits, defineProps, withDefaults, ref, onMounted } from 'vue';
 
 /* Composition */
 // import you composition api...
@@ -13,7 +12,8 @@ import BaseInputWrapper from 'components/base/BaseInputWrapper.vue';
 /* Types */
 // declare components component...
 interface Props {
-  value?: string;
+  disable?: boolean,
+  delay?: number,
 }
 interface Emit {
   (e: 'update:modelValue', value: string): void;
@@ -22,7 +22,7 @@ interface Emit {
 /* Props */
 // property default value...
 const props = withDefaults(defineProps<Props>(), {
-  value: ''
+  disable: false
 });
 
 /* Emits */
@@ -31,7 +31,7 @@ const emit = defineEmits<Emit>();
 /* Data */
 // declare reactive variables...
 const code = ref<string>('');
-const disableSendCode = ref<boolean>(false);
+const visibleSendCodeBtn = ref<boolean>(false);
 
 /* Composition */
 // declare you composition api...
@@ -39,6 +39,10 @@ const { formatterTimer, setTimer, startTimer } = useTimer({ stop: stopTimerHandl
 
 /* Life hooks */
 // life cycle hooks...
+onMounted(() => {
+  if (!props.delay) return;
+  startTimerHandle(props.delay);
+});
 
 /* Computed */
 // you computational properties...
@@ -46,13 +50,16 @@ const { formatterTimer, setTimer, startTimer } = useTimer({ stop: stopTimerHandl
 /* Methods */
 // promote your methods...
 function stopTimerHandler() {
-  disableSendCode.value = false;
+  visibleSendCodeBtn.value = false;
+}
+function startTimerHandle(delay: number) {
+  setTimer(delay);
+  startTimer();
+  visibleSendCodeBtn.value = true;
 }
 
 function sendCodeHandler() {
-  setTimer(20);
-  startTimer();
-  disableSendCode.value = true;
+  startTimerHandle(20);
 }
 </script>
 
@@ -65,12 +72,14 @@ function sendCodeHandler() {
       <q-input
         v-model="code"
         mask="######"
+        :disable="disable"
         outlined
         :placeholder="$t('input.placeholder.confirm_code')"
       />
     </base-input-wrapper>
     <q-btn
-      v-if="!disableSendCode"
+      v-if="!visibleSendCodeBtn"
+      :disable="disable"
       class="confirm-code-form__btn"
       color="primary"
       no-caps

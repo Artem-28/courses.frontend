@@ -31,8 +31,8 @@
 </script>
 
 <template>
-  <q-layout view="lhr lpr lfr">
-    <q-page-container class="auth-layout-content">
+  <q-layout view="lhr lpr lfr" class="auth-layout">
+    <q-page-container class="auth-layout__content">
       <router-view />
     </q-page-container>
   </q-layout>
@@ -44,8 +44,10 @@
 
 /* Selector */
 // style component...
-.auth-layout-content {
-  margin-top: 180px;
-  padding: 0 calc(50% - 304px);
+.auth-layout {
+  background: $app-bg;
+ &__content {
+    padding: 180px calc(50% - 304px);
+  }
 }
 </style>

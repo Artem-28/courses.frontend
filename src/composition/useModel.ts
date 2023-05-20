@@ -9,8 +9,10 @@ function useModel(props: ICustomProps, emit: any | null, name = 'modelValue', ca
     },
     set (value: any) {
       const newValue = callback ? callback(value) : value;
+      console.log(emit);
       if (!emit) return;
       emit(`update:${name}`, newValue);
+      console.log('update');
     }
   });
 }

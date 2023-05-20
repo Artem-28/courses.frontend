@@ -22,3 +22,8 @@ export interface IDragHook {
 }
 
 export type FCallHookDrag = <K extends keyof IDragHook>(type: K) => void;
+
+export interface ITimerHook {
+  stop?: () => void;
+  change?: (time: number) => void;
+}

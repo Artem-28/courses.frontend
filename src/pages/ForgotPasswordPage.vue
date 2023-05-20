@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { defineEmits, defineProps, withDefaults, ref } from 'vue';
+import { defineEmits, defineProps, withDefaults, ref, reactive } from 'vue';
 
 /* Composition */
 // import you composition api...
@@ -8,32 +8,37 @@ import { defineEmits, defineProps, withDefaults, ref } from 'vue';
 // import you components...
 import BaseInputWrapper from 'components/base/BaseInputWrapper.vue';
 import ConfirmCodeForm from 'components/form/ConfirmCodeForm.vue';
+import BaseStepTemplate from 'components/base/BaseStepTemplate.vue';
+import { useRouter } from 'vue-router';
+import { IRegistrationForm } from 'src/types/type-component-props';
+import useConfirmCode from 'src/composition/useConfirmCode';
+import BaseInputPassword from 'components/base/BaseInputPassword.vue';
 
 /* Types */
 // declare components component...
-interface Props {
-  value?: string;
-}
-interface Emit {
-  (e: 'update:modelValue', value: string): void;
-}
 
 /* Props */
 // property default value...
-const props = withDefaults(defineProps<Props>(), {
-  value: ''
-});
 
 /* Emits */
-const emit = defineEmits<Emit>();
 
 /* Data */
 // declare reactive variables...
-const email = ref<string | null>(null);
-const step = ref<string>('email');
+const steps = ['base', 'confirm', 'reset'];
+const currentStep = ref<string>('base');
+const loading = ref<boolean>(false);
+const formVisible = ref<boolean>(true);
+const formData = reactive<IRegistrationForm>({
+  email: 'artem.migkheev.git@gmail.com',
+  password: '1',
+  confirmPassword: '',
+  accept: false
+});
 
 /* Composition */
 // declare you composition api...
+const router = useRouter();
+const { code, sendCode, codeTime, confirmDelay } = useConfirmCode('change_password');
 
 /* Life hooks */
 // life cycle hooks...
@@ -43,56 +48,125 @@ const step = ref<string>('email');
 
 /* Methods */
 // promote your methods...
+async function continueBaseHandler() {
+  loading.value = true;
+  // await sendCode({ email: formData.email });
+
+  // Если под был отправлен переходим к следующиму шагу
+  if (code.value) {
+    currentStep.value = 'confirm';
+  }
+
+  loading.value = false;
+}
+
+function continueConfirmHandler() {
+  loading.value = true;
+  currentStep.value = 'reset';
+  loading.value = false;
+}
+
+function continueResetHandler() {
+  loading.value = true;
+  formVisible.value = false;
+  loading.value = false;
+}
+function exitFormHandle() {
+  router.push('/auth');
+}
 </script>
 
 <template>
-  <div class="forgot-password-page">
-    <div class="forgot-password-page__title">
-      <span v-text="$t('auth.restore_password')"/>
-    </div>
-    <q-stepper
-      v-model="step"
-      vertical
-      color="primary"
-      animated
-      class="forgot-password-page__stepper"
+  <div v-loading="loading" class="forgot-password-page">
+    <base-step-template
+      v-if="formVisible"
+      v-model="currentStep"
+      :steps="steps"
+      :prev-visible-button-mode="true"
+      :next-visible-button-mode="false"
+      @exit="exitFormHandle"
     >
-      <q-step
-        :title="$t('forgot_password_step.email')"
-        name="email"
-        icon="settings"
-        class="forgot-password-page__step"
-      >
-        <base-input-wrapper :label="$t('input.label.email')">
-          <q-input
-            v-model="email"
-            outlined
-            :placeholder="$t('input.placeholder.email')"
-          />
-        </base-input-wrapper>
-        <ConfirmCodeForm />
-        <q-stepper-navigation>
+      <template v-slot:header="{ step }">
+        <span class="forgot-password-page__step" v-text="$t('base.step', { ...step })" />
+      </template>
+
+      <template v-slot:base>
+        <h5 class="forgot-password-page__title" v-text="$t('forgot_password.base.header')" />
+        <p class="forgot-password-page__message" v-text="$t('forgot_password.base.message')" />
+        <div class="forgot-password-page__form">
+          <base-input-wrapper :label="$t('input.label.email')">
+            <q-input
+              v-model="formData.email"
+              outlined
+              :placeholder="$t('input.placeholder.email')"
+            />
+          </base-input-wrapper>
           <q-btn
             color="primary"
             no-caps
-            :label="$t('button.send_code')"
+            :label="$t('button.continue')"
+            class="forgot-password-page__form__btn"
+            @click="continueBaseHandler"
           />
-        </q-stepper-navigation>
-      </q-step>
-      <q-step
-        title="title"
-        name="confirm"
-        icon="settings"
-      >
-        <base-input-wrapper :label="$t('input.label.email')">
-          <q-input
-            v-model="email"
-            outlined
-            :placeholder="$t('input.placeholder.email')"
+        </div>
+      </template>
+
+      <template v-slot:confirm>
+        <h5 class="forgot-password-page__title" v-text="$t('forgot_password.confirm.header')" />
+        <p class="forgot-password-page__message" v-if="code">
+          {{ $t('forgot_password.confirm.message') }} <br/>
+          {{ $t('base.code_valid_until') }}
+          <strong class="message-time" v-text="codeTime.live" />
+        </p>
+        <div class="forgot-password-page__form">
+          <ConfirmCodeForm :address="formData.email" :delay="confirmDelay" />
+          <q-btn
+            color="primary"
+            no-caps
+            :label="$t('button.confirm')"
+            class="forgot-password-page__form__btn"
+            @click="continueConfirmHandler"
           />
-        </base-input-wrapper>
-      </q-step>
-    </q-stepper>
+        </div>
+      </template>
+
+      <template v-slot:reset>
+        <h5 class="forgot-password-page__title" v-text="$t('forgot_password.reset.header')" />
+        <p class="forgot-password-page__message" v-text="$t('forgot_password.reset.message')" />
+        <div class="forgot-password-page__form">
+          <base-input-password
+            v-model="formData.password"
+            outline
+            :label="$t('input.label.password')"
+            :placeholder="$t('input.placeholder.password')"
+          />
+          <base-input-password
+            v-model="formData.confirmPassword"
+            outline
+            :label="$t('input.label.confirm_password')"
+            :placeholder="$t('input.placeholder.confirm_password')"
+          />
+          <q-btn
+            color="primary"
+            no-caps
+            :label="$t('button.change_password')"
+            class="forgot-password-page__form__btn"
+            @click="continueResetHandler"
+          />
+        </div>
+      </template>
+    </base-step-template>
+    <div v-if="!formVisible" class="forgot-password-page__success">
+      <h5 class="forgot-password-page__title" v-text="$t('forgot_password.success.header')" />
+      <p class="forgot-password-page__message" v-text="$t('forgot_password.success.message')" />
+      <q-btn
+        color="primary"
+        no-caps
+        :label="$t('button.ok')"
+        class="forgot-password-page__success__btn"
+        @click="exitFormHandle"
+      />
+    </div>
   </div>
 </template>
 
@@ -103,32 +177,49 @@ const step = ref<string>('email');
 /* Selector */
 // style component...
 .forgot-password-page {
-  display: flex;
-  flex-direction: column;
-  &__title {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    height: 48px;
-    width: 100%;
-    font-weight: 700;
-    font-size: 16px;
-    color: $primary;
-    box-shadow: 0px -2px 0px 0px $primary inset;
-  }
-  &__stepper {
-    padding: 0;
-    box-shadow: none;
-  }
-  //&__step-nav {
-  //  display: flex;
-  //  justify-content: flex-end;
-  //}
-  &__form {
-    padding: 40px 104px 0;
+  position: relative;
+  background: white;
+  padding: 16px 16px 32px;
+  border-radius: 8px;
+  &__success {
     display: flex;
     flex-direction: column;
-    gap: 24px;
+    align-items: center;
+  }
+  &__success__btn {
+    width: 100px;
+  }
+  &__step {
+    text-align: center;
+    margin-top: 12px;
+    color: $text-body-secondary;
+  }
+  &__title {
+    margin: 24px 0 10px;
+    text-align: center;
+    width: 100%;
+    font-weight: 700;
+    color: $primary;
+  }
+  &__message {
+    text-align: center;
+    font-size: 14px;
+    margin-bottom: 24px;
+    padding: 0 40px;
+    font-weight: 600;
+    color: $text-body-secondary;
+    .message-time {
+      color: $text-body-primary;
+    }
+  }
+  &__form {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    padding: 0 88px;
+  }
+  &__form__btn {
+    margin-top: 36px;
   }
 }
 </style>

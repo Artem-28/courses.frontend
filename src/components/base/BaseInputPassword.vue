@@ -17,15 +17,20 @@ interface Props {
   label?: string;
   placeholder?: string;
   outline?: boolean;
+  error?: boolean;
+  errorMessage?: string | null
 }
 interface Emit {
   (e: 'update:modelValue', value: string): void;
+  (e: 'blur'): void;
 }
 
 /* Props */
 // property default value...
 const props = withDefaults(defineProps<Props>(), {
-  outline: false
+  outline: false,
+  error: false,
+  errorMessage: null
 });
 
 /* Emits */
@@ -57,7 +62,10 @@ const inputType = computed(() => isToggle.value ? 'text' : 'password');
       v-model="model"
       :outlined="outline"
       :placeholder="placeholder"
+      :error-message="errorMessage"
+      :error="error"
       :type="inputType"
+      @blur="emit('blur')"
     >
       <template v-slot:append>
         <q-btn
