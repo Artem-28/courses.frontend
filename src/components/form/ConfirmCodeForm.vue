@@ -8,12 +8,18 @@ import useTimer from 'src/composition/useTimer';
 /* Components */
 // import you components...
 import BaseInputWrapper from 'components/base/BaseInputWrapper.vue';
+import useModel from 'src/composition/useModel';
+import BaseConfirmCode from 'src/models/confirm-code/BaseConfirmCode';
 
 /* Types */
 // declare components component...
 interface Props {
+  modelValue: string,
+  sendCodeMethod: () => Promise<BaseConfirmCode>;
   disable?: boolean,
   delay?: number,
+  error?: boolean,
+  errorMessage?: string,
 }
 interface Emit {
   (e: 'update:modelValue', value: string): void;
@@ -22,7 +28,8 @@ interface Emit {
 /* Props */
 // property default value...
 const props = withDefaults(defineProps<Props>(), {
-  disable: false
+  disable: false,
+  error: false
 });
 
 /* Emits */
@@ -30,7 +37,7 @@ const emit = defineEmits<Emit>();
 
 /* Data */
 // declare reactive variables...
-const code = ref<string>('');
+const code = useModel(props, emit);
 const visibleSendCodeBtn = ref<boolean>(false);
 
 /* Composition */
@@ -58,8 +65,10 @@ function startTimerHandle(delay: number) {
   visibleSendCodeBtn.value = true;
 }
 
-function sendCodeHandler() {
-  startTimerHandle(20);
+async function sendCodeHandler() {
+  const codeModel = await props.sendCodeMethod();
+  if (!codeModel.delay.valid) return;
+  startTimerHandle(codeModel.delay.time);
 }
 </script>
 
@@ -73,6 +82,8 @@ function sendCodeHandler() {
         v-model="code"
         mask="######"
         :disable="disable"
+        :error="error"
+        :error-message="errorMessage"
         outlined
         :placeholder="$t('input.placeholder.confirm_code')"
       />
@@ -102,7 +113,7 @@ function sendCodeHandler() {
   display: flex;
   justify-content: space-between;
   align-items: end;
-  gap: 24px;
+  gap: 12px;
   &__control {
     flex-grow: 1;
   }
@@ -111,11 +122,12 @@ function sendCodeHandler() {
     font-weight: 600;
     color: $text-body-secondary;
     flex-basis: 160px;
-    margin-bottom: 4px;
+    margin-bottom: 24px;
   }
   &__btn {
+    padding: 0;
     flex-basis: 160px;
-    margin-bottom: 4px;
+    margin-bottom: 24px;
   }
 }
 </style>

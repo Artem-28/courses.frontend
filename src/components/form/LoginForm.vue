@@ -1,9 +1,10 @@
 <script setup lang="ts">
-import { computed, reactive } from 'vue';
+import { computed, reactive, onUnmounted } from 'vue';
 
 /* Composition */
 // import you composition api...
 import useValidateLoginForm from 'src/composition/validate/useValidateLoginForm';
+import { useAppMessageStore } from 'stores/app-message-store';
 
 /* Components */
 // import you components...
@@ -13,7 +14,6 @@ import BaseInputPassword from 'components/base/BaseInputPassword.vue';
 /* Types */
 // declare components component...
 import { ILoginForm } from 'src/types/type-component-props';
-import { useErrorStore } from 'stores/error-store';
 
 interface Emit {
   (e: 'submit', payload: ILoginForm): void;
@@ -28,28 +28,33 @@ const emit = defineEmits<Emit>();
 /* Data */
 // declare reactive variables...
 const formData = reactive<ILoginForm>({
-  email: 'artem.mikheev.git@gmail.com',
-  password: '12345'
+  email: '',
+  password: ''
 });
 
 /* Composition */
 // declare you composition api...
 const { validate, errorMessage } = useValidateLoginForm(formData);
-const { errorMessage: stateErrorMessage, clear: clearError } = useErrorStore();
+const { getMessage, clear: clearError } = useAppMessageStore();
 
 /* Life hooks */
 // life cycle hooks...
+onUnmounted(() => {
+  clearError('login');
+});
 
 /* Computed */
 // you computational properties...
 const errorResponse = computed(() => {
-  return stateErrorMessage('login', 'axios-error');
+  const error = getMessage('login');
+  if (!error) return null;
+  return error.value;
 });
 
 /* Methods */
 // promote your methods...
 async function sendFormHandle() {
-  clearError();
+  clearError('login');
   validate.value.$touch();
   if (validate.value.$error) return;
   emit('submit', formData);

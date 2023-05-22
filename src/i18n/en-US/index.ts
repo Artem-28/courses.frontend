@@ -10,9 +10,20 @@ export default {
     code_valid_until: 'EN|Код действителен до: '
   },
   error: {
+    login: {
+      base: 'EN|Возникла ошибка при входе в систему'
+    },
     registration: {
+      base: 'EN|Возникла ошибка при регистрации пользователя',
       login_exists: 'EN|Пользователь с таким email уже зарегистрирован.',
       login_check: 'EN|Возникла ошибка при проверке email'
+    },
+    confirm_code: {
+      send: 'EN|Возникла ошибка при отправке кода подтвердения',
+      check: 'EN|Возникла ошибка при проверке кода подтверждения'
+    },
+    change_password: {
+      base: 'EN|Возникла ошибка при изменении пароля'
     }
   },
   auth: {
@@ -30,8 +41,8 @@ export default {
       message: 'EN|На вашу почту был отправен код для восстановления пароля.'
     },
     reset: {
-      header: 'Изменение пароля',
-      message: 'Придумайте ваш новый пароль'
+      header: 'EN|Изменение пароля',
+      message: 'EN|Придумайте ваш новый пароль. После изменения ваш старый пароль будет недействителен.'
     },
     success: {
       header: 'EN|Выполнено',
@@ -64,7 +75,9 @@ export default {
   validate_message: {
     email: {
       required: 'EN|поле email обязательно для заполнения',
-      email: 'EN|некорректный email'
+      email: 'EN|некорректный email',
+      exists: 'EN|пользователь с таким email уже зарегистрирован',
+      not_exist: 'EN|пользователь с таким email не зарегистрирован'
     },
     password: {
       required: 'EN|поле пароль обязательно для заполнения',
@@ -72,6 +85,11 @@ export default {
     },
     confirm_password: {
       same_as: 'EN|пароли не совпадают'
+    },
+    confirm_code: {
+      required: 'EN|код подтверждения не введен',
+      live: 'EN|срок действия кода подтверждения истек',
+      match: 'EN|не верный код подтверждения'
     }
   },
   confirm_message: {

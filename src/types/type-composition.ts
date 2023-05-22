@@ -1,11 +1,16 @@
 import { ComputedRef, Ref, UnwrapRef } from 'vue';
 import {
   FGetCacheElement,
-  FSetCacheElement, IFormData,
-  IFromElementPoint,
-  IPosition, IStep,
-  IToElementPoint, IValidateError, IValidateMessage, TConfirmCode,
-  TRefHTMLElement, TValidateProperty
+  FSetCacheElement, IChangePasswordForm,
+  IFromElementPoint, ILoginForm,
+  IPosition, IRegistrationForm,
+  IStep,
+  IToElementPoint,
+  IValidateForm,
+  IValidateMessage,
+  TConfirmCode,
+  TRefHTMLElement,
+  TValidateProperty
 } from 'src/types/type-component-props'
 import { FCallback, IDragHook, ITimerHook } from 'src/types/type-hook';
 import { Validation } from '@vuelidate/core';
@@ -77,7 +82,9 @@ export interface IResponseUseValidate {
   errorMessage: Ref<IValidateMessage>;
 }
 
-export type FCompositionUseValidate = (formData: IFormData) => IResponseUseValidate;
+export type FCompositionUseValidateLoginForm = (formData: ILoginForm) => IResponseUseValidate;
+export type FCompositionUseValidateRegistrationForm = (formData: IRegistrationForm) => IResponseUseValidate;
+export type FCompositionUseValidateChangePasswordForm = (formData: IChangePasswordForm) => IResponseUseValidate;
 
 export type FCompositionStep = (steps: Array<IStep | string>, startStep?: string) => {
   step: ComputedRef<IStep>;
@@ -86,16 +93,12 @@ export type FCompositionStep = (steps: Array<IStep | string>, startStep?: string
   setStep: (step: string) => IStep;
   stepInfo: ComputedRef<{ start: boolean, end: boolean, count: number, current: number, stepValue: string }>;
 }
-//   {
-//   step: Ref<U>,
-//   nextStep: () => U
-//   prevStep: () => U
-//   stepInfo: ComputedRef<{ start: boolean, end: boolean }>
-// }
 
 export type FCompositionUseConfirmCode = (type: TConfirmCode) => {
   code: Ref<BaseConfirmCode>,
   confirmDelay: ComputedRef<number>
   codeTime: ComputedRef<{ live: string, delay: string }>
   sendCode: (payload: { email: string }) => void;
+  checkCode: (payload: { email: string, code?: string }) => void;
+  logCheckCode: () => void;
 };

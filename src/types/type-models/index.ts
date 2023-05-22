@@ -3,3 +3,4 @@ export type { IAnswerData, IAnswerCreateMethods, IAnswerRelations } from 'src/ty
 export type { IQuestionData, IQuestionCreateMethods, IQuestionRelations } from 'src/types/type-models/type-question';
 export type { IConfirmCodeCreateMethod } from 'src/types/type-models/type-confirm-code';
 export type { IUserData, IUserCreateMethod } from 'src/types/type-models/type-user';
+export type { ModelBaseAppMessage, IAppMessageConfig, IAppMessage } from 'src/types/type-models/type-app-message';

@@ -1,32 +1,32 @@
-import { FApiMethod, IApiToken, IAxiosError, IErrorBase, TError } from 'src/types/type-api';
+import { FApiMethod, IApiToken } from 'src/types/type-api';
 import { api, axios } from 'src/api/axios';
 import { AxiosError } from 'axios';
-import { Notify } from 'quasar';
-import { useErrorStore } from 'stores/error-store';
+import BaseAppMessage from 'src/models/app-messgae/BaseAppMessage';
 
 export default class BaseService {
-  private _errorData: IErrorBase | IAxiosError | null;
-  private _notify = Notify;
   private _tokenKey = 'access_token';
   private _token: IApiToken = { value: null, type: null };
+  private _message = new BaseAppMessage();
 
   constructor () {
-    this._errorData = null;
+    // Инициализация токена
     this._initToken();
   }
 
+  // Получение токена
   get token() {
     const { value, type } = this._token;
     if (!value || type) return null;
     return `${type} ${value}`;
   }
 
+  // Получение заголовков
   get headers() {
     const headers: any = {
       'Content-Type': 'application/json',
       Accept: 'application/json'
     };
-
+    // Добавление заголовка авторизации
     const token = this.token;
     if (token) {
       headers.Authorization = token;
@@ -35,36 +35,7 @@ export default class BaseService {
     return headers;
   }
 
-  get isAxiosError() {
-    return this._errorData && this._errorData.type === 'axios-error';
-  }
-
-  get errorMessage() {
-    if (!this._errorData) return '';
-
-    if (this._errorData.type === 'axios-error') {
-      return this._errorData.error.response?.data.message;
-    }
-    return this._errorData.error;
-  }
-
-  showErrorMessage(type?: TError) {
-    if (!this._errorData) return;
-    if (!type) {
-      this._showErrorMessage();
-    }
-    if (this._errorData.type === type) {
-      this._showErrorMessage();
-    }
-    if (this._errorData.type === type) {
-      this._showErrorMessage();
-    }
-  }
-
-  clearError() {
-    this._errorData = null;
-  }
-
+  // Инициализация токена из localStorage
   private _initToken() {
     const data = localStorage.getItem(this._tokenKey);
     if (!data) return;
@@ -73,42 +44,50 @@ export default class BaseService {
     this._token = token;
   }
 
+  // Обновление токена в localStorage
   protected _updateToken(token: IApiToken) {
     const data = JSON.stringify(token);
     localStorage.setItem(this._tokenKey, data);
     this._token = token;
   }
 
+  // Удаление токена
   protected _clearToken() {
     this._token.type = null;
     this._token.value = null;
     localStorage.removeItem(this._tokenKey);
   }
 
-  private _showErrorMessage() {
-    this._notify.create({ message: this.errorMessage, type: 'negative', position: 'top' });
+  // создание сообщения app-message
+  protected _info(message: string) {
+    return this._message.info(message);
   }
 
-  protected _errorHandler(e: unknown | string) {
+  // Создание сообщения об ошибки app-message
+  protected _error(e: unknown | string) {
     const error = e as Error | AxiosError;
+    let message = ''; // текст сообщения об ошибки
+    let errorKey = null; // ключь по которому можем сохранить ошибку во vuex для дальнейшей обработки
+    let status: number | null = null; // статус ошибки
+    // если ошибка из запроса
     if (axios.isAxiosError(error)) {
-      this._errorData = { error, type: 'axios-error' };
-      return;
+      message = error.response?.data.message as string;
+      status = error.response?.status || null;
+      errorKey = error.response?.data.type || null;
     }
+    // если передали в ошибку простое сообщение
     if (typeof e === 'string') {
-      this._errorData = { error: e, type: 'stock-error' };
-      return;
+      message = e;
     }
-    this._errorData = { error: error.message, type: 'stock-error' };
+    // Возвращаем созданную ошибку для дальнейшей работы с ней
+    return this._message.error(message, errorKey, status);
   }
 
-  protected _saveErrorState(key: string) {
-    if (!this._errorData) return;
-    const { insert } = useErrorStore();
-    insert(key, this._errorData);
-  }
-
-  protected _post:FApiMethod = (url, data, config) => {
+  protected _post: FApiMethod = (url, data, config) => {
     return api.post(url, data, { ...config, headers: this.headers });
+  };
+
+  protected _patch: FApiMethod = (url, data, config) => {
+    return api.patch(url, data, { ...config, headers: this.headers });
   };
 }

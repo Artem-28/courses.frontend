@@ -15,4 +15,9 @@ export default class BaseConfirmCode {
     this.matches = !!data && data.matches;
     this.type = type;
   }
+
+  public resetDelay() {
+    this.delay.valid = false;
+    this.delay.time = 0;
+  }
 }

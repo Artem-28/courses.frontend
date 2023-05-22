@@ -1,4 +1,10 @@
-import { ICodeData, ILoginForm, TConfirmCode } from 'src/types/type-component-props';
+import {
+  IChangePasswordForm,
+  ICodeData,
+  ILoginForm,
+  IRegistrationForm,
+  TConfirmCode
+} from 'src/types/type-component-props'
 import { AxiosResponse, AxiosError, AxiosRequestConfig } from 'axios';
 
 export interface IApiToken {
@@ -27,7 +33,9 @@ export type TError = 'stock-error' | 'axios-error';
 export type FApiMethod = (url: string, data?: any, config?: AxiosRequestConfig | undefined) => Promise<AxiosResponse<any>>
 
 export type FApiLogin = (payload: ILoginForm) => Promise<AxiosResponse<any>>
-export type FApiCheckExistEmail = (email: string) => Promise<AxiosResponse<any>>
+export type FApiRegistration = (payload: IRegistrationForm) => Promise<AxiosResponse<any>>
+export type FApiChangePassword = (payload: IChangePasswordForm) => Promise<AxiosResponse<any>>
+export type FApiCheckExistEmail = (payload: { email: string }) => Promise<AxiosResponse<any>>
 
 export type FApiCode = (payload: ICodePayload) => Promise<AxiosResponse<any>>
 

@@ -1,11 +1,11 @@
 import { computed } from 'vue';
 import { email, helpers, required, sameAs, minLength } from '@vuelidate/validators';
-import { FCompositionUseValidateRegistrationForm } from 'src/types/type-composition';
+import { FCompositionUseValidateChangePasswordForm } from 'src/types/type-composition';
 import useVuelidate from '@vuelidate/core';
 import { useI18n } from 'vue-i18n';
 import useValidateMessage from 'src/composition/validate/useValidateMessage';
 
-const useValidateRegistrationForm: FCompositionUseValidateRegistrationForm = (formData) => {
+const useValidateChangePasswordForm: FCompositionUseValidateChangePasswordForm = (formData) => {
   const { t: $t } = useI18n();
 
   const password = computed(() => {
@@ -38,4 +38,4 @@ const useValidateRegistrationForm: FCompositionUseValidateRegistrationForm = (fo
   };
 };
 
-export default useValidateRegistrationForm;
+export default useValidateChangePasswordForm;

@@ -11,4 +11,4 @@ export type { ISceneState } from 'src/types/store/type-scene';
 export type { IQuestionState, FQuestionById, FUpdateActiveBlock } from 'src/types/store/type-question';
 export type { IAnswerState, FAnswerByKey, FAnswerInsert } from 'src/types/store/type-answer';
 export type { IAuthUserState } from 'src/types/store/type-auth-user';
-export type { IErrorState } from 'src/types/store/type-error';
+export type { IAppMessageState } from 'src/types/store/type-app-message';

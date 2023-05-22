@@ -5,6 +5,7 @@ import { ICodePayload } from 'src/types/type-api';
 import { FCompositionUseConfirmCode } from 'src/types/type-composition';
 import confirmCodeFactory from 'src/factories/confirm-code-factory';
 import ServiceConfirmCode from 'src/api/service/ServiceConfirmCode';
+import BaseAppMessage from 'src/models/app-messgae/BaseAppMessage';
 
 const useConfirmCode: FCompositionUseConfirmCode = (type) => {
   const factory = confirmCodeFactory;
@@ -22,12 +23,24 @@ const useConfirmCode: FCompositionUseConfirmCode = (type) => {
     return { live, delay };
   });
 
+  async function checkCode(data: { email: string }) {
+    const payload: ICodePayload = { ...data, type };
+    code.value = await ServiceConfirmCode.checkCode(payload);
+  }
+
+  function logCheckCode() {
+    const appMessage = new BaseAppMessage();
+    const { live, matches } = code.value;
+    if (!live.valid) {
+      appMessage.info('validate_message.confirm_code.live').set('confirm_code_live');
+    }
+    if (!matches) {
+      appMessage.info('validate_message.confirm_code.match').set('confirm_code_match');
+    }
+  }
+
   async function sendCode(data: { email: string }) {
     const payload: ICodePayload = { ...data, type };
-    // Запрос на проверку случае если код был отправлен ранее
-    code.value = await ServiceConfirmCode.checkCode(payload);
-    // Если получили ошибку или если код еще валидный
-    if (code.value.live.valid) return;
     // Отправляем запрос на получение нового кода
     code.value = await ServiceConfirmCode.sendCode(payload);
   }
@@ -36,7 +49,9 @@ const useConfirmCode: FCompositionUseConfirmCode = (type) => {
     code,
     confirmDelay,
     codeTime,
-    sendCode
+    sendCode,
+    checkCode,
+    logCheckCode
   };
 };
 

@@ -52,7 +52,15 @@ export interface IRegistrationForm {
   email: string;
   password: string;
   confirmPassword: string;
-  accept: boolean;
+  code: string;
+  licenseAgreement: boolean;
+}
+
+export interface IChangePasswordForm {
+  email: string;
+  password: string;
+  confirmPassword: string;
+  code: string;
 }
 
 export interface IValidateMessage {
@@ -61,8 +69,8 @@ export interface IValidateMessage {
 export interface IValidateError {
   [property: string]: boolean;
 }
-
-export type IFormData = ILoginForm | IRegistrationForm;
+export interface IValidateForm extends ILoginForm, IRegistrationForm, IChangePasswordForm {}
+export type IFormData = ILoginForm | IRegistrationForm | IChangePasswordForm;
 export type TValidateProperty = Array<keyof ILoginForm | keyof IRegistrationForm>;
 
 export type TRefHTMLElement = Ref<HTMLElement | null>;

@@ -1,20 +1,20 @@
 <script setup lang="ts">
 import { ref } from 'vue';
+import ServiceAuth from 'src/api/service/ServiceAuth';
 
 /* Composition */
 // import you composition api...
+import { useAuthUserStore } from 'stores/models/auth-user-store';
+import { useRouter } from 'vue-router';
 
 /* Components */
 // import you components...
 import LoginForm from 'components/form/LoginForm.vue';
 import RegistrationForm from 'components/form/RegistrationForm.vue';
-import { ILoginForm } from 'src/types/type-component-props';
-import ServiceAuth from 'src/api/service/ServiceAuth';
-import { useAuthUserStore } from 'stores/models/auth-user-store';
-import { useRouter } from 'vue-router';
 
 /* Types */
 // declare components component...
+import { ILoginForm, IRegistrationForm } from 'src/types/type-component-props';
 
 /* Props */
 // property default value...
@@ -49,6 +49,15 @@ async function loginHandle(payload: ILoginForm) {
   if (user) {
     createUser(user);
     await router.push('/');
+  }
+  toggleLoading(false);
+}
+
+async function registrationHandle(payload: IRegistrationForm) {
+  toggleLoading(true);
+  const success = await ServiceAuth.registration(payload);
+  if (success) {
+    await loginHandle(payload);
   }
   toggleLoading(false);
 }
@@ -91,6 +100,7 @@ async function checkExistsLoginHandle(login: string) {
         <RegistrationForm
           :check-login-method="checkExistsLoginHandle"
           @loading-form="toggleLoading"
+          @submit="registrationHandle"
         />
       </q-tab-panel>
     </q-tab-panels>

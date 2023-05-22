@@ -1,10 +1,12 @@
 <script setup lang="ts">
-import { defineEmits, defineProps, reactive, ref, withDefaults } from 'vue';
+import { computed, defineEmits, defineProps, onUnmounted, reactive, ref, withDefaults } from 'vue';
 
 /* Composition */
 // import you composition api...
 import useValidateRegistrationForm from 'src/composition/validate/useValidateRegistrationForm';
 import useConfirmCode from 'src/composition/useConfirmCode';
+import { useAppMessageStore } from 'stores/app-message-store';
+import { useI18n } from 'vue-i18n';
 
 /* Components */
 // import you components...
@@ -23,6 +25,7 @@ interface Props {
 
 interface Emit {
   (e: 'loadingForm', value: boolean): void;
+  (e: 'submit', payload: IRegistrationForm): void;
 }
 
 /* Props */
@@ -37,10 +40,11 @@ const emit = defineEmits<Emit>();
 /* Data */
 // declare reactive variables...
 const formData = reactive<IRegistrationForm>({
-  email: 'artem.migkheev.git@gmail.com',
-  password: '1',
+  email: '',
+  password: '',
   confirmPassword: '',
-  accept: false
+  code: '',
+  licenseAgreement: false
 });
 const steps = ['base', 'confirm'];
 const currentStep = ref<string>('base');
@@ -48,32 +52,71 @@ const currentStep = ref<string>('base');
 /* Composition */
 // declare you composition api...
 const { validate, errorMessage } = useValidateRegistrationForm(formData);
-const { code, sendCode, codeTime, confirmDelay } = useConfirmCode('registration');
+const { code, sendCode, checkCode, codeTime, confirmDelay } = useConfirmCode('registration');
+const { getMessage, clear: clearError } = useAppMessageStore();
+const { t: $t } = useI18n();
 
 /* Life hooks */
 // life cycle hooks...
+onUnmounted(() => {
+  clearError('login', 'confirm_code');
+});
 
 /* Computed */
 // you computational properties...
+const errorResponse = computed(() => {
+  const errors = { email: '', code: '' };
+  const loginError = getMessage('login', 'login_exists');
+  const confirmCodeError = getMessage('confirm_code');
+  if (loginError) {
+    errors.email = $t(loginError.value);
+  }
+  if (confirmCodeError) {
+    errors.code = $t(confirmCodeError.value);
+  }
+  return errors;
+});
+
+const disableSubmitBtn = computed(() => {
+  return !formData.licenseAgreement;
+});
 
 /* Methods */
 // promote your methods...
 async function validateLoginHandle() {
   const exists = await props.checkLoginMethod(formData.email);
-  if (typeof exists === 'boolean') return exists;
+  if (typeof exists === 'boolean') return !exists;
   return false;
 }
 
+async function sendCodeHandle() {
+  emit('loadingForm', true);
+  await sendCode({ email: formData.email });
+  emit('loadingForm', false);
+  return code.value;
+}
+
 async function continueHandler() {
-  validate.value.$touch();
-  if (validate.value.$error) return;
+  clearError('login', 'confirm_code');
+
+  const { email, password, confirmPassword } = validate.value;
+  email.$touch();
+  password.$touch();
+  confirmPassword.$touch();
+  const isErrorForm = email.$error || password.$error || confirmPassword.$error;
+
+  if (isErrorForm) return;
 
   emit('loadingForm', true);
   // Отправляем код подтверждения
   const isValidLogin = await validateLoginHandle();
 
   if (isValidLogin) {
-    await sendCode({ email: formData.email });
+    await checkCode({ email: formData.email });
+  }
+
+  if (isValidLogin && !code.value.live.valid) {
+    await sendCodeHandle();
   }
   // Если под был отправлен переходим к следующиму шагу
   if (isValidLogin && code.value) {
@@ -81,6 +124,13 @@ async function continueHandler() {
   }
 
   emit('loadingForm', false);
+}
+
+async function sendFormHandle() {
+  clearError('login', 'confirm_code');
+  validate.value.$touch();
+  if (validate.value.$error) return;
+  emit('submit', formData);
 }
 </script>
 
@@ -96,8 +146,8 @@ async function continueHandler() {
           <q-input
             v-model="formData.email"
             outlined
-            :error="validate.email.$error"
-            :error-message="errorMessage.email"
+            :error="validate.email.$error || !!errorResponse.email"
+            :error-message="errorMessage.email || errorResponse.email"
             :placeholder="$t('input.placeholder.email')"
           />
         </base-input-wrapper>
@@ -135,10 +185,16 @@ async function continueHandler() {
           <strong class="message-time" v-text="codeTime.live" />
         </span>
 
-        <ConfirmCodeForm :address="formData.email" :delay="confirmDelay" />
+        <ConfirmCodeForm
+          v-model="formData.code"
+          :send-code-method="sendCodeHandle"
+          :delay="confirmDelay"
+          :error="validate.code.$error || !!errorResponse.code"
+          :error-message="errorMessage.code || errorResponse.code"
+        />
 
         <div class="confirm-form__accept">
-          <q-checkbox size="24px" v-model="formData.accept" />
+          <q-checkbox size="24px" v-model="formData.licenseAgreement" />
           <div class="accept-message">
             {{ $t('base.i_agree') }}
             {{ $t('base.with') }}
@@ -150,8 +206,10 @@ async function continueHandler() {
         </div>
         <q-btn
           color="primary"
+          :disable="disableSubmitBtn"
           no-caps
           :label="$t('button.registration')"
+          @click="sendFormHandle"
         />
       </div>
     </template>

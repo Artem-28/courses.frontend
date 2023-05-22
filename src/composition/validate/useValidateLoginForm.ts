@@ -1,10 +1,10 @@
 import { email, helpers, required } from '@vuelidate/validators';
+import { FCompositionUseValidateLoginForm } from 'src/types/type-composition';
 import useVuelidate from '@vuelidate/core';
 import { useI18n } from 'vue-i18n';
-import { FCompositionUseValidate } from 'src/types/type-composition';
 import useValidateMessage from 'src/composition/validate/useValidateMessage';
 
-const useValidateLoginForm: FCompositionUseValidate = (formData) => {
+const useValidateLoginForm: FCompositionUseValidateLoginForm = (formData) => {
   const { t: $t } = useI18n();
 
   const formRules = {
