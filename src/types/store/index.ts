@@ -10,3 +10,5 @@ export type { IConnectionLineState, ILineElementIds, ILineElementData, FUpdateCr
 export type { ISceneState } from 'src/types/store/type-scene';
 export type { IQuestionState, FQuestionById, FUpdateActiveBlock } from 'src/types/store/type-question';
 export type { IAnswerState, FAnswerByKey, FAnswerInsert } from 'src/types/store/type-answer';
+export type { IAuthUserState } from 'src/types/store/type-auth-user';
+export type { IAppMessageState } from 'src/types/store/type-app-message';

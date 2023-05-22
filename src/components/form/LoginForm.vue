@@ -1,9 +1,10 @@
 <script setup lang="ts">
-import { defineEmits, defineProps, withDefaults, reactive } from 'vue';
-import { LoginForm } from 'src/types/form';
+import { computed, reactive, onUnmounted } from 'vue';
 
 /* Composition */
 // import you composition api...
+import useValidateLoginForm from 'src/composition/validate/useValidateLoginForm';
+import { useAppMessageStore } from 'stores/app-message-store';
 
 /* Components */
 // import you components...
@@ -12,53 +13,69 @@ import BaseInputPassword from 'components/base/BaseInputPassword.vue';
 
 /* Types */
 // declare components component...
-interface Props {
-  value?: string;
-}
+import { ILoginForm } from 'src/types/type-component-props';
+
 interface Emit {
-  (e: 'update:modelValue', value: string): void;
+  (e: 'submit', payload: ILoginForm): void;
 }
 
 /* Props */
 // property default value...
-const props = withDefaults(defineProps<Props>(), {
-  value: ''
-});
 
 /* Emits */
 const emit = defineEmits<Emit>();
 
 /* Data */
 // declare reactive variables...
-const loginForm = reactive<LoginForm>({
-  email: null,
-  password: null
+const formData = reactive<ILoginForm>({
+  email: '',
+  password: ''
 });
 
 /* Composition */
 // declare you composition api...
+const { validate, errorMessage } = useValidateLoginForm(formData);
+const { getMessage, clear: clearError } = useAppMessageStore();
 
 /* Life hooks */
 // life cycle hooks...
+onUnmounted(() => {
+  clearError('login');
+});
 
 /* Computed */
 // you computational properties...
+const errorResponse = computed(() => {
+  const error = getMessage('login');
+  if (!error) return null;
+  return error.value;
+});
 
 /* Methods */
 // promote your methods...
+async function sendFormHandle() {
+  clearError('login');
+  validate.value.$touch();
+  if (validate.value.$error) return;
+  emit('submit', formData);
+}
 </script>
 
 <template>
   <div class="login-form">
     <base-input-wrapper :label="$t('input.label.email')">
       <q-input
-        v-model="loginForm.email"
+        v-model="formData.email"
+        :error="validate.email.$error || !!errorResponse"
+        :error-message="errorMessage.email || errorResponse"
         outlined
         :placeholder="$t('input.placeholder.email')"
       />
     </base-input-wrapper>
     <base-input-password
-      v-model="loginForm.password"
+      v-model="formData.password"
+      :error="validate.password.$error"
+      :error-message="errorMessage.password"
       outline
       :label="$t('input.label.password')"
       :placeholder="$t('input.placeholder.password')"
@@ -69,7 +86,12 @@ const loginForm = reactive<LoginForm>({
     >
       {{ $t('auth.forgot_password') }}
     </router-link>
-    <q-btn color="primary" no-caps :label="$t('button.login')" />
+    <q-btn
+      color="primary"
+      no-caps
+      :label="$t('button.login')"
+      @click="sendFormHandle"
+    />
   </div>
 </template>
 
@@ -80,12 +102,13 @@ const loginForm = reactive<LoginForm>({
 /* Selector */
 // style component...
 .login-form {
+  position: relative;
   display: flex;
   flex-direction: column;
-  gap: 24px;
+  gap: 4px;
   &__forgot-password-link {
     margin-left: auto;
-    margin-bottom: 16px;
+    margin-bottom: 36px;
     font-size: 16px;
     font-weight: bold;
     color: $text-body-secondary;

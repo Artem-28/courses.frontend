@@ -59,6 +59,7 @@ const emit = defineEmits<Emit>();
     padding-bottom: 8px;
     font-weight: 700;
     font-size: 16px;
+    color: $text-body-primary;
   }
 }
 </style>
