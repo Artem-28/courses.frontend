@@ -15,6 +15,7 @@ import {
 import { FCallback, IDragHook, ITimerHook } from 'src/types/type-hook';
 import { Validation } from '@vuelidate/core';
 import BaseConfirmCode from 'src/models/confirm-code/BaseConfirmCode'
+import { Pinia, StoreDefinition } from 'pinia'
 
 export type FCompositionUseDrag = (refElement: TRefHTMLElement, position: IPosition, hook?: IDragHook) => {
   position: IPosition,
@@ -77,15 +78,6 @@ export type FCompositionValidateMessage = (validate: Ref<Validation>, property: 
   errorMessage: Ref<IValidateMessage>;
 }
 
-export interface IResponseUseValidate {
-  validate: Ref<Validation>
-  errorMessage: Ref<IValidateMessage>;
-}
-
-export type FCompositionUseValidateLoginForm = (formData: ILoginForm) => IResponseUseValidate;
-export type FCompositionUseValidateRegistrationForm = (formData: IRegistrationForm) => IResponseUseValidate;
-export type FCompositionUseValidateChangePasswordForm = (formData: IChangePasswordForm) => IResponseUseValidate;
-
 export type FCompositionStep = (steps: Array<IStep | string>, startStep?: string) => {
   step: ComputedRef<IStep>;
   nextStep: () => IStep;
@@ -101,4 +93,23 @@ export type FCompositionUseConfirmCode = (type: TConfirmCode) => {
   sendCode: (payload: { email: string }) => void;
   checkCode: (payload: { email: string, code?: string }) => void;
   logCheckCode: () => void;
+};
+
+// Validation form
+export interface IResponseUseValidate {
+  validate: Ref<Validation>
+  errorMessage: Ref<IValidateMessage>;
+}
+
+export type FCompositionUseValidateLoginForm = (formData: ILoginForm) => IResponseUseValidate;
+export type FCompositionUseValidateRegistrationForm = (formData: IRegistrationForm) => IResponseUseValidate;
+export type FCompositionUseValidateChangePasswordForm = (formData: IChangePasswordForm) => IResponseUseValidate;
+
+// Router guard
+export type TGuardModule = 'authorized'
+export type FCompositionUseCheckGuard = (modules: TGuardModule) => {
+  guard: () => Promise<boolean>;
+}
+export type FCompositionUseRouterGuard = () => {
+  guard: () => Promise<boolean>
 };

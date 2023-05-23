@@ -1,4 +1,4 @@
-import { FApiMethod, IApiToken } from 'src/types/type-api';
+import { FApiMethod, FApiMethodGet, IApiToken } from 'src/types/type-api';
 import { api, axios } from 'src/api/axios';
 import { AxiosError } from 'axios';
 import BaseAppMessage from 'src/models/app-messgae/BaseAppMessage';
@@ -16,7 +16,7 @@ export default class BaseService {
   // Получение токена
   get token() {
     const { value, type } = this._token;
-    if (!value || type) return null;
+    if (!value || !type) return null;
     return `${type} ${value}`;
   }
 
@@ -89,5 +89,9 @@ export default class BaseService {
 
   protected _patch: FApiMethod = (url, data, config) => {
     return api.patch(url, data, { ...config, headers: this.headers });
+  };
+
+  protected _get: FApiMethodGet = (url, config) => {
+    return api.get(url, { ...config, headers: this.headers });
   };
 }

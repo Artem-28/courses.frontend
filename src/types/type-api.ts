@@ -31,6 +31,7 @@ export interface IAxiosError {
 export type TError = 'stock-error' | 'axios-error';
 
 export type FApiMethod = (url: string, data?: any, config?: AxiosRequestConfig | undefined) => Promise<AxiosResponse<any>>
+export type FApiMethodGet = (url: string, config?: AxiosRequestConfig | undefined) => Promise<AxiosResponse<any>>
 
 export type FApiLogin = (payload: ILoginForm) => Promise<AxiosResponse<any>>
 export type FApiRegistration = (payload: IRegistrationForm) => Promise<AxiosResponse<any>>

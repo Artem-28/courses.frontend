@@ -7,6 +7,7 @@ import {
 } from 'vue-router';
 
 import routes from './routes';
+import useCheckGuard from 'src/composition/router-guard/useCheckGuard';
 
 /*
  * If not building with SSR mode, you can
@@ -17,7 +18,7 @@ import routes from './routes';
  * with the Router instance.
  */
 
-export default route(function (/* { store, ssrContext } */) {
+export default route(function (/* { store } */) {
   const createHistory = process.env.SERVER
     ? createMemoryHistory
     : (process.env.VUE_ROUTER_MODE === 'history' ? createWebHistory : createWebHashHistory);
@@ -30,6 +31,15 @@ export default route(function (/* { store, ssrContext } */) {
     // quasar.conf.js -> build -> vueRouterMode
     // quasar.conf.js -> build -> publicPath
     history: createHistory(process.env.VUE_ROUTER_BASE)
+  });
+
+  Router.beforeEach(async (to) => {
+    let authorized = to.meta.authorized || false;
+    if (!authorized) return;
+    const { guard: authorizedGuard } = useCheckGuard('authorized');
+    authorized = await authorizedGuard();
+    if (authorized) return;
+    return '/auth';
   });
 
   return Router;

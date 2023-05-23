@@ -11,6 +11,7 @@ class ServiceAuth extends BaseService {
   private _registration: FApiRegistration = (payload) => this._post('auth/registration', payload);
   private _changePassword: FApiChangePassword = (payload) => this._patch('auth/change_password', payload);
   private _checkExistsEmail: FApiCheckExistEmail = (payload) => this._post('auth/check_exists', payload);
+  private _authUser = () => this._get('auth/user');
 
   public async login(payload: ILoginForm): Promise<BaseUser | null> {
     try {
@@ -71,6 +72,16 @@ class ServiceAuth extends BaseService {
       return data;
     } catch (e) {
       this._error('error.registration.login_check').show();
+      return null;
+    }
+  }
+
+  public async authUser(): Promise<BaseUser | null> {
+    try {
+      const { data: { data } } = await this._authUser();
+      if (!data) return null;
+      return new BaseUser(data);
+    } catch (e) {
       return null;
     }
   }
